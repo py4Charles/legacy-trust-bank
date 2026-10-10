@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: SQLite has no native enum or Decimal support in Prisma, so enum-like
+// fields are stored as strings and money is stored as integer cents.
+// Switching to PostgreSQL later is mostly a datasource change.
+
+model User {
+  id                 String            @id @default(cuid())
+  email              String            @unique
+  passwordHash       String
+  fullName           String
+  role               String            @default("capturer") // capturer | authoriser | administrator
+  status             String            @default("active") // active | suspended
+  twoFactorEnabled   Boolean           @default(true)
+  failedLoginCount   Int               @default(0)
+  lockedUntil        DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  accounts           Account[]
+  refreshTokens      RefreshToken[]
+  challenges         LoginChallenge[]
+  notifications      Notification[]
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LoginChallenge {
+  id         String    @id @default(cuid())
+  userId     String
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  userId         String
+  name           String
+  type           String // cheque | savings | credit | investment
+  number         String        @unique
+  currency       String        @default("ZAR")
+  balanceCents   Int           @default(0)
+  availableCents Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  cards          Card[]
+  outgoing       Transfer[]    @relation("fromAccount")
+
+  @@index([userId])
+}
+
+model Transaction {
+  id                String    @id @default(cuid())
+  accountId         String
+  description       String
+  category          String
+  direction         String // credit | debit
+  amountCents       Int
+  status            String    @default("posted") // posted | pending | failed
+  balanceAfterCents Int?
+  actorId           String?
+  ipAddress         String?
+  idempotencyKey    String?   @unique
+  createdAt         DateTime  @default(now())
+
+  account           Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt])
+}
+
+model Recipient {
+  id            String     @id @default(cuid())
+  ownerId       String?
+  name          String
+  bank          String
+  accountNumber String
+  reference     String?
+  favourite     Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+
+  transfers     Transfer[]
+
+  @@index([ownerId])
+}
+
+model Card {
+  id                     String   @id @default(cuid())
+  accountId              String
+  label                  String
+  last4                  String
+  type                   String // debit | credit
+  status                 String   @default("active") // active | blocked | expired
+  expiry                 String
+  monthlyLimitCents      Int      @default(0)
+  spentThisMonthCents    Int      @default(0)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  account                Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+}
+
+model Transfer {
+  id              String    @id @default(cuid())
+  reference       String
+  amountCents     Int
+  fromAccountId   String
+  recipientId     String
+  status          String    @default("pending_authorisation") // pending_authorisation | scheduled | completed | rejected | failed
+  paymentDate     DateTime
+  createdById     String
+  authorisedById  String?
+  idempotencyKey  String?   @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  fromAccount     Account   @relation("fromAccount", fields: [fromAccountId], references: [id], onDelete: Cascade)
+  recipient       Recipient @relation(fields: [recipientId], references: [id])
+
+  @@index([fromAccountId])
+  @@index([status])
+}
+
+model Approval {
+  id            String    @id @default(cuid())
+  type          String // payment | beneficiary | limit-change
+  title         String
+  amountCents   Int       @default(0)
+  payloadJson   String?
+  status        String    @default("pending") // pending | approved | rejected
+  transferId    String?
+  submittedById String
+  decidedById   String?
+  decidedAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([status])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?
+  action       String
+  entity       String
+  entityId     String?
+  metadataJson String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  severity  String   @default("info") // info | warning | critical
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
