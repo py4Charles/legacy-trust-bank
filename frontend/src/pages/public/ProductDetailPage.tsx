@@ -1,7 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Card, CardBody } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { PageHero } from "@/components/ui/PageHero";
 import { products } from "@/data/mock";
@@ -62,10 +61,21 @@ export function ProductDetailPage() {
               {product.features.map((feature) => (
                 <li
                   key={feature}
-                  className="flex items-start gap-3 rounded-lg border border-ink-100 bg-white p-4 text-sm text-ink-700"
+                  className="flex items-start gap-3 rounded-xl border border-ink-100 bg-white p-4 text-sm text-ink-700 shadow-soft"
                 >
-                  <span className="text-positive-600" aria-hidden="true">
-                    ✓
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-positive-600 ring-1 ring-emerald-100">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-3 w-3"
+                      aria-hidden="true"
+                    >
+                      <path d="m5 12 5 5 9-10" />
+                    </svg>
                   </span>
                   {feature}
                 </li>
@@ -101,11 +111,15 @@ export function ProductDetailPage() {
         </div>
 
         <aside className="space-y-6">
-          <Card>
+          <Card className="overflow-hidden">
+            <div className="bg-gradient-to-br from-brand-700 to-brand-950 p-5 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+                Monthly fee
+              </p>
+              <p className="mt-3 text-3xl font-bold">{product.monthlyFee}</p>
+            </div>
             <CardBody>
-              <Badge tone="brand">Fees</Badge>
-              <p className="mt-3 text-2xl font-bold">{product.monthlyFee}</p>
-              <p className="mt-1 text-sm text-ink-500">
+              <p className="text-sm text-ink-500">
                 Fees and rates issued in the latest product schedule.
               </p>
               <Link
@@ -113,6 +127,12 @@ export function ProductDetailPage() {
                 className={buttonClass("outline", "sm", "mt-4 w-full")}
               >
                 View full fee schedule
+              </Link>
+              <Link
+                to="/register"
+                className={buttonClass("primary", "sm", "mt-2 w-full")}
+              >
+                Apply now
               </Link>
             </CardBody>
           </Card>

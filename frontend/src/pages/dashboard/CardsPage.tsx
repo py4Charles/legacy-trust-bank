@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { PageHero } from "@/components/ui/PageHero";
 import { cards as seedCards } from "@/data/mock";
 import { formatCurrency, maskCardNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -22,12 +23,11 @@ export function CardsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Cards</h1>
-        <p className="mt-1 text-sm text-ink-600">
-          Control your cards, set limits and freeze them instantly.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Cards"
+        title="Control every card in seconds"
+        description="Freeze instantly, review limits and manage spending across your physical and virtual cards."
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
         {cards.map((card) => {
@@ -38,49 +38,88 @@ export function CardsPage() {
           const blocked = card.status === "blocked";
 
           return (
-            <Card key={card.id}>
+            <Card key={card.id} className="animate-fade-up">
               <CardBody className="space-y-5">
                 <div
                   className={cn(
-                    "relative overflow-hidden rounded-xl p-5 text-white",
+                    "relative overflow-hidden rounded-2xl p-6 text-white shadow-xl",
                     card.type === "credit"
-                      ? "bg-gradient-to-br from-ink-900 to-brand-800"
-                      : "bg-gradient-to-br from-brand-800 to-brand-600",
+                      ? "bg-gradient-to-br from-ink-900 via-ink-950 to-brand-900"
+                      : "bg-gradient-to-br from-brand-700 via-brand-800 to-brand-950",
                   )}
                 >
-                  <div className="flex items-start justify-between">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-10 -top-14 h-44 w-44 rounded-full bg-white/10 blur-2xl"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-accent-500/20 blur-3xl"
+                  />
+                  <div className="relative flex items-start justify-between">
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-white/70">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
                         {card.label}
                       </p>
-                      <p className="mt-4 font-mono text-lg tracking-widest">
+                      <p className="mt-5 font-mono text-xl tracking-[0.18em]">
                         {maskCardNumber(card.last4)}
                       </p>
                     </div>
-                    <Badge tone="light">
-                      {blocked ? "Frozen" : "Active"}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge tone={blocked ? "danger" : "light"}>
+                        {blocked ? "Frozen" : "Active"}
+                      </Badge>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-5 w-5 text-white/70"
+                        aria-hidden="true"
+                      >
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                    </div>
                   </div>
-                  <div className="mt-6 flex items-end justify-between text-sm">
-                    <span className="text-white/70">
-                      {card.type === "credit" ? "Credit" : "Debit"}
+                  <div className="relative mt-6 flex items-end justify-between text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4 text-white/70"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 3 4 6v5c0 4.5 3.4 8.3 8 10 4.6-1.7 8-5.5 8-10V6l-8-3Z" />
+                      </svg>
+                      <span className="font-medium text-white">
+                        Legacy Trust
+                      </span>
                     </span>
-                    <span className="text-white/70">Expires {card.expiry}</span>
+                    <span className="text-white/70">
+                      {card.type === "credit" ? "Credit" : "Debit"} · Exp {card.expiry}
+                    </span>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-ink-600">Monthly spend</span>
-                    <span className="font-medium text-ink-900">
-                      {formatCurrency(card.spentThisMonth)} /{" "}
+                    <span className="font-medium tabular-nums text-ink-900">
+                      {formatCurrency(card.spentThisMonth)} of{" "}
                       {formatCurrency(card.monthlyLimit)}
                     </span>
                   </div>
                   <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink-100">
                     <div
                       className={cn(
-                        "h-full rounded-full",
+                        "h-full rounded-full transition-all duration-500",
                         usage > 85 ? "bg-negative-600" : "bg-brand-600",
                       )}
                       style={{ width: `${usage}%` }}
@@ -109,14 +148,23 @@ export function CardsPage() {
         })}
       </div>
 
-      <Card>
+      <Card className="animate-fade-up">
         <CardHeader>
           <CardTitle>Card security tips</CardTitle>
         </CardHeader>
         <CardBody className="grid gap-4 text-sm text-ink-600 sm:grid-cols-3">
-          <p>Freeze a card instantly if it's lost — no need to cancel it.</p>
-          <p>Set lower limits for online shopping to reduce your risk.</p>
-          <p>Only enter your PIN on terminals you trust and shield the keypad.</p>
+          <div className="flex gap-3 rounded-xl border border-ink-100 p-4">
+            <span aria-hidden="true" className="text-brand-600">⏸</span>
+            <p>Freeze a card instantly if it's lost — no need to cancel it.</p>
+          </div>
+          <div className="flex gap-3 rounded-xl border border-ink-100 p-4">
+            <span aria-hidden="true" className="text-brand-600">↧</span>
+            <p>Set lower limits for online shopping to reduce your risk.</p>
+          </div>
+          <div className="flex gap-3 rounded-xl border border-ink-100 p-4">
+            <span aria-hidden="true" className="text-brand-600">⌨</span>
+            <p>Only enter your PIN on terminals you trust and shield the keypad.</p>
+          </div>
         </CardBody>
       </Card>
     </div>

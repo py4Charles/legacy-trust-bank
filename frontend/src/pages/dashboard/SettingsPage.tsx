@@ -6,7 +6,9 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PageHero } from "@/components/ui/PageHero";
 import { useAuthStore } from "@/store/auth";
+import { cn } from "@/lib/utils";
 
 const passwordSchema = z
   .object({
@@ -54,21 +56,22 @@ export function SettingsPage() {
 
   const onPasswordSubmit = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    setSavedMessage("Password updated. You'll be asked to re-authenticate on other devices.");
+    setSavedMessage(
+      "Password updated. You'll be asked to re-authenticate on other devices.",
+    );
     reset();
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="mt-1 text-sm text-ink-600">
-          Manage your profile, security and notification preferences.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Settings"
+        title="Profile, security & preferences"
+        description="Keep your details current and your account locked down tight."
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="animate-fade-up">
           <CardHeader>
             <CardTitle>Profile</CardTitle>
           </CardHeader>
@@ -76,15 +79,15 @@ export function SettingsPage() {
             <Input label="Full name" defaultValue={user?.name} />
             <Input label="Email address" type="email" defaultValue={user?.email} />
             <Input label="Mobile number" defaultValue="082 123 4567" />
-            <Button
-              onClick={() => setSavedMessage("Profile details saved.")}
-            >
-              Save changes
-            </Button>
+            <div className="flex items-center gap-3 pt-1">
+              <Button onClick={() => setSavedMessage("Profile details saved.")}>
+                Save changes
+              </Button>
+            </div>
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="animate-fade-up">
           <CardHeader>
             <CardTitle>Security</CardTitle>
             <Badge tone={twoFactor ? "positive" : "danger"}>
@@ -92,7 +95,14 @@ export function SettingsPage() {
             </Badge>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="flex items-center justify-between gap-4 rounded-lg border border-ink-100 p-3">
+            <div
+              className={cn(
+                "flex items-center justify-between gap-4 rounded-xl border p-3.5",
+                twoFactor
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-ink-200",
+              )}
+            >
               <div>
                 <p className="text-sm font-medium text-ink-900">
                   Two-factor authentication
@@ -105,15 +115,18 @@ export function SettingsPage() {
                 type="button"
                 role="switch"
                 aria-checked={twoFactor}
+                aria-label="Toggle two-factor authentication"
                 onClick={() => setTwoFactor((v) => !v)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                  twoFactor ? "bg-brand-600" : "bg-ink-300"
-                }`}
+                className={cn(
+                  "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+                  twoFactor ? "bg-brand-600" : "bg-ink-300",
+                )}
               >
                 <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                    twoFactor ? "translate-x-5" : "translate-x-0.5"
-                  }`}
+                  className={cn(
+                    "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
+                    twoFactor ? "translate-x-5" : "translate-x-0.5",
+                  )}
                 />
               </button>
             </div>
@@ -134,6 +147,7 @@ export function SettingsPage() {
                 label="New password"
                 type="password"
                 autoComplete="new-password"
+                hint="Min 8 chars with an uppercase letter, a number and a symbol."
                 error={errors.next?.message}
                 {...register("next")}
               />
@@ -144,14 +158,18 @@ export function SettingsPage() {
                 error={errors.confirm?.message}
                 {...register("confirm")}
               />
-              <Button type="submit" variant="secondary" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Updating…" : "Update password"}
               </Button>
             </form>
           </CardBody>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card className="animate-fade-up lg:col-span-2">
           <CardHeader>
             <CardTitle>Notification preferences</CardTitle>
           </CardHeader>
@@ -159,9 +177,11 @@ export function SettingsPage() {
             {notificationChannels.map((channel) => (
               <label
                 key={channel.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-ink-100 p-3 text-sm"
+                className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-ink-100 p-3.5 text-sm transition-colors hover:border-ink-200"
               >
-                <span className="text-ink-700">{channel.label}</span>
+                <span className="font-medium text-ink-700">
+                  {channel.label}
+                </span>
                 <input
                   type="checkbox"
                   checked={prefs[channel.id]}
@@ -171,7 +191,7 @@ export function SettingsPage() {
                       [channel.id]: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-ink-300 text-brand-600"
+                  className="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
                 />
               </label>
             ))}
@@ -182,9 +202,22 @@ export function SettingsPage() {
       {savedMessage && (
         <div
           role="status"
-          className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-positive-600"
+          className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-sm text-positive-700 animate-fade-in"
         >
-          {savedMessage}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5 shrink-0"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="m8.5 12 2.5 2.5 4.5-5" />
+          </svg>
+          <p>{savedMessage}</p>
         </div>
       )}
     </div>

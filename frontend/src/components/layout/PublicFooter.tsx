@@ -34,11 +34,11 @@ const columns = [
 
 export function PublicFooter() {
   return (
-    <footer className="mt-20 border-t border-ink-800 bg-ink-950 text-ink-300">
-      <Container className="grid gap-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="mt-20 bg-ink-950 text-ink-300">
+      <Container className="grid gap-10 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="space-y-4">
           <Logo tone="light" />
-          <p className="max-w-xs text-sm text-ink-400">
+          <p className="max-w-xs text-sm leading-relaxed text-ink-400">
             Secure, transparent banking for individuals and businesses. Regulated
             by the Financial Sector Conduct Authority.
           </p>
@@ -54,10 +54,10 @@ export function PublicFooter() {
 
         {columns.map((column) => (
           <div key={column.title}>
-            <h4 className="mb-3 text-sm font-semibold text-white">
+            <h4 className="mb-4 text-sm font-semibold tracking-wide text-white">
               {column.title}
             </h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2.5 text-sm">
               {column.links.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -73,7 +73,7 @@ export function PublicFooter() {
         ))}
       </Container>
 
-      <div className="border-t border-ink-800">
+      <div className="border-t border-white/10">
         <Container className="flex flex-col justify-between gap-3 py-5 text-xs text-ink-500 sm:flex-row">
           <p>© {new Date().getFullYear()} Legacy Trust Bank. All rights reserved.</p>
           <p>

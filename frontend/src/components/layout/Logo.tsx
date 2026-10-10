@@ -8,13 +8,19 @@ interface LogoProps {
 
 export function Logo({ className, tone = "dark" }: LogoProps) {
   const textColor = tone === "light" ? "text-white" : "text-ink-900";
+  const subColor =
+    tone === "light" ? "text-white/60" : "text-brand-600";
   return (
     <Link
       to="/"
-      className={cn("inline-flex items-center gap-2.5", className)}
+      className={cn("group inline-flex items-center gap-2.5", className)}
       aria-label="Legacy Trust Bank home"
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm">
+      <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-brand-950 text-white shadow-lg shadow-brand-600/30">
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-1/2 bg-white/20"
+        />
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -22,7 +28,7 @@ export function Logo({ className, tone = "dark" }: LogoProps) {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-5 w-5"
+          className="relative h-5 w-5"
           aria-hidden="true"
         >
           <path d="M12 3 4 6v5c0 4.5 3.4 8.3 8 10 4.6-1.7 8-5.5 8-10V6l-8-3Z" />
@@ -35,8 +41,8 @@ export function Logo({ className, tone = "dark" }: LogoProps) {
         </span>
         <span
           className={cn(
-            "text-[10px] font-semibold uppercase tracking-[0.2em]",
-            tone === "light" ? "text-white/70" : "text-ink-400",
+            "mt-0.5 text-[9px] font-semibold uppercase tracking-[0.28em]",
+            subColor,
           )}
         >
           Bank

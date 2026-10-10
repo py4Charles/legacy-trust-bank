@@ -21,12 +21,14 @@ export function PublicHeader() {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-      isActive ? "text-brand-700" : "text-ink-600 hover:text-ink-900",
+      "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+      isActive
+        ? "text-brand-700"
+        : "text-ink-600 hover:text-ink-900",
     );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/85 backdrop-blur-lg">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Logo />
 
@@ -38,24 +40,24 @@ export function PublicHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link to="/support" className="text-sm font-medium text-ink-600 hover:text-ink-900">
-            Help
-          </Link>
+        <div className="hidden items-center gap-2 lg:flex">
           {user ? (
-            <Link to="/dashboard" className={buttonClass("primary", "sm")}>
+            <Link
+              to="/dashboard"
+              className={buttonClass("primary", "sm", "px-5")}
+            >
               Go to Dashboard
             </Link>
           ) : (
             <>
               <Link
-                to="/register"
-                className={buttonClass("outline", "sm")}
+                to="/login"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-ink-700 transition-colors hover:text-brand-700"
               >
-                Register
+                Log in
               </Link>
-              <Link to="/login" className={buttonClass("primary", "sm")}>
-                Log In
+              <Link to="/register" className={buttonClass("primary", "sm", "px-5")}>
+                Open an Account
               </Link>
             </>
           )}
@@ -63,7 +65,7 @@ export function PublicHeader() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-700 hover:bg-ink-100 lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink-700 hover:bg-ink-100 lg:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
@@ -87,13 +89,18 @@ export function PublicHeader() {
       </Container>
 
       {menuOpen && (
-        <div className="border-t border-ink-200 bg-white lg:hidden">
-          <Container className="flex flex-col py-3">
+        <div className="border-t border-ink-100 bg-white pb-4 shadow-card lg:hidden">
+          <Container className="flex flex-col pt-2">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={navLinkClass}
+                className={({ isActive }) =>
+                  cn(
+                    "rounded-lg px-3 py-2.5 text-sm font-medium",
+                    isActive ? "text-brand-700" : "text-ink-600 hover:text-ink-900",
+                  )
+                }
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
@@ -112,17 +119,17 @@ export function PublicHeader() {
                 <>
                   <Link
                     to="/register"
-                    className={buttonClass("outline", "md")}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Register
-                  </Link>
-                  <Link
-                    to="/login"
                     className={buttonClass("primary", "md")}
                     onClick={() => setMenuOpen(false)}
                   >
-                    Log In
+                    Open an Account
+                  </Link>
+                  <Link
+                    to="/login"
+                    className={buttonClass("outline", "md")}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Log in
                   </Link>
                 </>
               )}

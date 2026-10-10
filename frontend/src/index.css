@@ -1,38 +1,86 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #d9e6ff;
-  --color-brand-200: #bcd3ff;
-  --color-brand-300: #8eb6ff;
-  --color-brand-400: #598eff;
-  --color-brand-500: #2f66ff;
-  --color-brand-600: #1a45f5;
-  --color-brand-700: #1634e1;
-  --color-brand-800: #182db6;
-  --color-brand-900: #1a2d8f;
-  --color-brand-950: #141c57;
-
-  --color-ink-50: #f6f7f9;
-  --color-ink-100: #eceef2;
-  --color-ink-200: #d4d9e2;
-  --color-ink-300: #aeb7c8;
-  --color-ink-400: #8290a8;
-  --color-ink-500: #63718c;
-  --color-ink-600: #4e5a73;
-  --color-ink-700: #40495d;
-  --color-ink-800: #383f4f;
-  --color-ink-900: #333844;
-  --color-ink-950: #21242c;
-
-  --color-accent-500: #f2b705;
-  --color-accent-600: #d99e02;
-
-  --color-positive-600: #0f8a4d;
-  --color-negative-600: #c02b2b;
-
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui,
+    sans-serif;
+
+  --color-brand-50: #f0f4ff;
+  --color-brand-100: #e0e9fe;
+  --color-brand-200: #bcd2fe;
+  --color-brand-300: #8fb0fd;
+  --color-brand-400: #5e89fa;
+  --color-brand-500: #3a62f5;
+  --color-brand-600: #2f4dea;
+  --color-brand-700: #2438c4;
+  --color-brand-800: #22319c;
+  --color-brand-900: #212f7b;
+  --color-brand-950: #151a48;
+
+  --color-ink-50: #f5f7fb;
+  --color-ink-100: #e9ecf4;
+  --color-ink-200: #d8dce9;
+  --color-ink-300: #b4bacd;
+  --color-ink-400: #8b92ab;
+  --color-ink-500: #6c7291;
+  --color-ink-600: #555b78;
+  --color-ink-700: #454a63;
+  --color-ink-800: #3b3f54;
+  --color-ink-900: #2b2e40;
+  --color-ink-950: #1a1c29;
+
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f2b705;
+  --color-accent-600: #c99203;
+
+  --color-positive-500: #22c55e;
+  --color-positive-600: #16a34a;
+  --color-positive-700: #0f7a3d;
+
+  --color-negative-500: #ef4444;
+  --color-negative-600: #dc2626;
+  --color-negative-700: #b91c1c;
+
+  --shadow-card: 0 1px 2px rgb(26 28 41 / 0.04),
+    0 6px 24px -6px rgb(26 28 41 / 0.1);
+  --shadow-card-hover: 0 2px 4px rgb(26 28 41 / 0.06),
+    0 16px 40px -12px rgb(47 77 234 / 0.24);
+  --shadow-soft: 0 1px 2px rgb(26 28 41 / 0.05);
+
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
 }
 
 html {
@@ -40,7 +88,14 @@ html {
 }
 
 body {
-  @apply bg-ink-50 text-ink-900 antialiased;
+  @apply bg-ink-50 font-sans text-ink-900 antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-display;
 }
 
 :focus-visible {
