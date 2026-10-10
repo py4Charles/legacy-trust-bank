@@ -287,3 +287,136 @@ describe("admin", () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe("hardening", () => {
+  it("caps OTP verification attempts", async () => {
+    const start = await request(app)
+      .post("/api/auth/login")
+      .send({ email: ADMIN_EMAIL, password: PASSWORD });
+    const { challengeId, devCode } = start.body.data;
+    const wrongCode = devCode === "000001" ? "000002" : "000001";
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const res = await request(app)
+        .post("/api/auth/login/verify")
+        .send({ challengeId, code: wrongCode });
+      expect(res.status).toBe(401);
+    }
+
+    const after = await request(app)
+      .post("/api/auth/login/verify")
+      .send({ challengeId, code: devCode });
+    expect(after.status).toBe(401);
+  });
+
+  it("scopes idempotency keys per user", async () => {
+    const me = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${capturerToken}`);
+    const capturerId = me.body.data.user.id;
+
+    const account = await prisma.account.create({
+      data: {
+        userId: capturerId,
+        name: "Idempotency Cheque",
+        type: "cheque",
+        number: `999 ${Date.now()}`,
+        balanceCents: 10_000_000,
+        availableCents: 10_000_000,
+      },
+    });
+
+    const recipientRes = await request(app)
+      .post("/api/recipients")
+      .set("Authorization", `Bearer ${capturerToken}`)
+      .send({
+        name: "Idempotency Payee",
+        bank: "Meridian Bank",
+        accountNumber: "555 111 2222",
+      });
+    const recipientId = recipientRes.body.data.recipient.id;
+
+    const adminAccounts = await request(app)
+      .get("/api/accounts")
+      .set("Authorization", `Bearer ${adminToken}`);
+    const adminCheque = adminAccounts.body.data.accounts.find(
+      (a: { type: string }) => a.type === "cheque",
+    );
+    const adminRecipients = await request(app)
+      .get("/api/recipients")
+      .set("Authorization", `Bearer ${adminToken}`);
+    const adminRecipient = adminRecipients.body.data.recipients[0];
+
+    const key = `shared-key-${Date.now()}`;
+
+    const adminPay = await request(app)
+      .post("/api/payments")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        fromAccountId: adminCheque.id,
+        recipientId: adminRecipient.id,
+        amount: 10,
+        reference: "Admin idem",
+        idempotencyKey: key,
+      });
+    expect(adminPay.status).toBe(201);
+    expect(adminPay.body.data.idempotentReplay).toBe(false);
+
+    const capturerPay = await request(app)
+      .post("/api/payments")
+      .set("Authorization", `Bearer ${capturerToken}`)
+      .send({
+        fromAccountId: account.id,
+        recipientId,
+        amount: 20,
+        reference: "Capturer idem",
+        idempotencyKey: key,
+      });
+
+    expect(capturerPay.status).toBe(201);
+    expect(capturerPay.body.data.idempotentReplay).toBe(false);
+    expect(capturerPay.body.data.transfer.createdById).toBe(capturerId);
+    expect(capturerPay.body.data.transfer.id).not.toBe(
+      adminPay.body.data.transfer.id,
+    );
+  });
+
+  it("rejects requests from a suspended user", async () => {
+    const email = `suspended.${Date.now()}@legacytrust.example`;
+    const create = await request(app)
+      .post("/api/admin/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        email,
+        fullName: "Temp User",
+        password: PASSWORD,
+        role: "capturer",
+      });
+    expect(create.status).toBe(201);
+    const userId = create.body.data.user.id;
+
+    const start = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: PASSWORD });
+    const verify = await request(app)
+      .post("/api/auth/login/verify")
+      .send({ challengeId: start.body.data.challengeId, code: start.body.data.devCode });
+    expect(verify.status).toBe(200);
+    const token = verify.body.data.accessToken as string;
+
+    const before = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${token}`);
+    expect(before.status).toBe(200);
+
+    const suspend = await request(app)
+      .post(`/api/admin/users/${userId}/suspend`)
+      .set("Authorization", `Bearer ${adminToken}`);
+    expect(suspend.status).toBe(200);
+
+    const after = await request(app)
+      .get("/api/accounts")
+      .set("Authorization", `Bearer ${token}`);
+    expect(after.status).toBe(403);
+  });
+});

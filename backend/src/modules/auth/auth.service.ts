@@ -22,6 +22,7 @@ import type { LoginInput, RegisterInput } from "./auth.schemas";
 const MAX_FAILED_LOGINS = 5;
 const LOCK_MINUTES = 15;
 const OTP_TTL_MINUTES = 5;
+const MAX_OTP_ATTEMPTS = 5;
 
 const hashOtp = (code: string) =>
   createHash("sha256").update(code).digest("hex");
@@ -155,7 +156,9 @@ export async function login(input: LoginInput): Promise<LoginResult> {
       entityId: user.id,
     });
 
-    console.info(`[2FA] Login code for ${user.email}: ${code}`);
+    if (!isProduction) {
+      console.info(`[2FA] Login code for ${user.email}: ${code}`);
+    }
 
     return {
       requiresTwoFactor: true,
@@ -183,12 +186,28 @@ export async function verifyTwoFactor(input: {
     include: { user: true },
   });
 
-  if (
-    !challenge ||
-    challenge.consumedAt ||
-    challenge.expiresAt < new Date() ||
-    challenge.codeHash !== hashOtp(input.code)
-  ) {
+  if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
+    throw unauthorized("That verification code is incorrect or expired");
+  }
+  if (challenge.attempts >= MAX_OTP_ATTEMPTS) {
+    await prisma.loginChallenge.update({
+      where: { id: challenge.id },
+      data: { consumedAt: challenge.consumedAt ?? new Date() },
+    });
+    throw unauthorized("That verification code is incorrect or expired");
+  }
+  if (challenge.user.status !== "active") {
+    throw forbidden("This account has been suspended. Contact support.");
+  }
+  if (challenge.codeHash !== hashOtp(input.code)) {
+    const attempts = challenge.attempts + 1;
+    await prisma.loginChallenge.update({
+      where: { id: challenge.id },
+      data: {
+        attempts,
+        consumedAt: attempts >= MAX_OTP_ATTEMPTS ? new Date() : null,
+      },
+    });
     throw unauthorized("That verification code is incorrect or expired");
   }
 

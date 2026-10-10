@@ -63,20 +63,24 @@ export async function decideApproval(params: {
     await authorisePaymentApproval({ user, approval, ipAddress });
   } else {
     await prisma.$transaction(async (tx) => {
-      if (approval.transferId) {
-        await tx.transfer.updateMany({
-          where: { id: approval.transferId, status: "pending_authorisation" },
-          data: { status: decision === "approved" ? "scheduled" : "rejected" },
-        });
-      }
-      await tx.approval.update({
-        where: { id: approval.id },
+      const claimed = await tx.approval.updateMany({
+        where: { id: approval.id, status: "pending" },
         data: {
           status: decision,
           decidedById: user.id,
           decidedAt: new Date(),
         },
       });
+      if (claimed.count === 0) {
+        throw conflict("This item has already been decided");
+      }
+
+      if (approval.transferId) {
+        await tx.transfer.updateMany({
+          where: { id: approval.transferId, status: "pending_authorisation" },
+          data: { status: decision === "approved" ? "scheduled" : "rejected" },
+        });
+      }
     });
   }
 
@@ -127,17 +131,44 @@ async function authorisePaymentApproval(params: {
     where: { id: transfer.fromAccountId },
   });
   if (!account) throw notFound("Source account not found");
-  if (account.availableCents < transfer.amountCents) {
-    throw badRequest("Insufficient available balance to authorise this payment");
-  }
 
   await prisma.$transaction(async (tx) => {
-    await tx.account.update({
-      where: { id: account.id },
+    const claimed = await tx.approval.updateMany({
+      where: { id: approval.id, status: "pending" },
+      data: {
+        status: "approved",
+        decidedById: user.id,
+        decidedAt: new Date(),
+      },
+    });
+    if (claimed.count === 0) {
+      throw conflict("This item has already been decided");
+    }
+
+    const settled = await tx.transfer.updateMany({
+      where: { id: transfer.id, status: "pending_authorisation" },
+      data: { status: "completed", authorisedById: user.id },
+    });
+    if (settled.count === 0) {
+      throw conflict("This transfer is no longer awaiting authorisation");
+    }
+
+    const debited = await tx.account.updateMany({
+      where: {
+        id: account.id,
+        availableCents: { gte: transfer.amountCents },
+      },
       data: {
         balanceCents: { decrement: transfer.amountCents },
         availableCents: { decrement: transfer.amountCents },
       },
+    });
+    if (debited.count === 0) {
+      throw badRequest("Insufficient available balance to authorise this payment");
+    }
+
+    const fresh = await tx.account.findUniqueOrThrow({
+      where: { id: account.id },
     });
 
     await tx.transaction.create({
@@ -148,23 +179,9 @@ async function authorisePaymentApproval(params: {
         direction: "debit",
         amountCents: transfer.amountCents,
         status: "posted",
-        balanceAfterCents: account.balanceCents - transfer.amountCents,
+        balanceAfterCents: fresh.balanceCents,
         actorId: user.id,
         ipAddress,
-      },
-    });
-
-    await tx.transfer.update({
-      where: { id: transfer.id },
-      data: { status: "completed", authorisedById: user.id },
-    });
-
-    await tx.approval.update({
-      where: { id: approval.id },
-      data: {
-        status: "approved",
-        decidedById: user.id,
-        decidedAt: new Date(),
       },
     });
   });

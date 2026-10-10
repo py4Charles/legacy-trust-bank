@@ -45,6 +45,34 @@ export interface CreatePaymentResult {
   idempotentReplay: boolean;
 }
 
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2002"
+  );
+}
+
+function toReplay(transfer: TransferWithRecipient): CreatePaymentResult {
+  return {
+    transfer,
+    requiresAuthorisation: transfer.status === "pending_authorisation",
+    scheduled: transfer.status === "scheduled",
+    idempotentReplay: true,
+  };
+}
+
+function findIdempotentTransfer(
+  userId: string,
+  idempotencyKey: string,
+): Promise<TransferWithRecipient | null> {
+  return prisma.transfer.findFirst({
+    where: { idempotencyKey, createdById: userId },
+    include: { recipient: true },
+  });
+}
+
 export async function createPayment(params: {
   userId: string;
   ipAddress: string;
@@ -61,17 +89,9 @@ export async function createPayment(params: {
   }
 
   if (input.idempotencyKey) {
-    const existing = await prisma.transfer.findUnique({
-      where: { idempotencyKey: input.idempotencyKey },
-      include: { recipient: true },
-    });
+    const existing = await findIdempotentTransfer(userId, input.idempotencyKey);
     if (existing) {
-      return {
-        transfer: existing,
-        requiresAuthorisation: existing.status === "pending_authorisation",
-        scheduled: existing.status === "scheduled",
-        idempotentReplay: true,
-      };
+      return toReplay(existing);
     }
   }
 
@@ -106,15 +126,78 @@ export async function createPayment(params: {
   const isFuture =
     paymentDate.getTime() > Date.now() + 60_000;
 
-  if (requiresAuthorisation) {
-    const transfer = await prisma.$transaction(async (tx) => {
-      const created = await tx.transfer.create({
+  try {
+    if (requiresAuthorisation) {
+      const transfer = await prisma.$transaction(async (tx) => {
+        const created = await tx.transfer.create({
+          data: {
+            reference: input.reference,
+            amountCents,
+            fromAccountId: account.id,
+            recipientId: recipient.id,
+            status: "pending_authorisation",
+            paymentDate,
+            createdById: userId,
+            idempotencyKey: input.idempotencyKey ?? null,
+          },
+          include: { recipient: true },
+        });
+
+        await tx.approval.create({
+          data: {
+            type: "payment",
+            title: `Payment to ${recipient.name}`,
+            amountCents,
+            payloadJson: JSON.stringify({
+              transferId: created.id,
+              fromAccountId: account.id,
+              recipientId: recipient.id,
+            }),
+            status: "pending",
+            transferId: created.id,
+            submittedById: userId,
+          },
+        });
+
+        await tx.notification.create({
+          data: {
+            userId,
+            title: "Payment awaiting authorisation",
+            body: `A payment of R${fromCents(amountCents).toFixed(
+              2,
+            )} requires a second authoriser.`,
+            severity: "info",
+          },
+        });
+
+        return created;
+      });
+
+      await recordAudit({
+        actorId: userId,
+        action: "payment.created.pending_authorisation",
+        entity: "Transfer",
+        entityId: transfer.id,
+        metadata: { amountCents, recipientId: recipient.id },
+        ipAddress,
+      });
+
+      return {
+        transfer,
+        requiresAuthorisation: true,
+        scheduled: false,
+        idempotentReplay: false,
+      };
+    }
+
+    if (isFuture) {
+      const transfer = await prisma.transfer.create({
         data: {
           reference: input.reference,
           amountCents,
           fromAccountId: account.id,
           recipientId: recipient.id,
-          status: "pending_authorisation",
+          status: "scheduled",
           paymentDate,
           createdById: userId,
           idempotencyKey: input.idempotencyKey ?? null,
@@ -122,29 +205,72 @@ export async function createPayment(params: {
         include: { recipient: true },
       });
 
-      await tx.approval.create({
+      await recordAudit({
+        actorId: userId,
+        action: "payment.scheduled",
+        entity: "Transfer",
+        entityId: transfer.id,
+        metadata: { amountCents, paymentDate },
+        ipAddress,
+      });
+
+      return {
+        transfer,
+        requiresAuthorisation: false,
+        scheduled: true,
+        idempotentReplay: false,
+      };
+    }
+
+    const transfer = await prisma.$transaction(async (tx) => {
+      const debited = await tx.account.updateMany({
+        where: { id: account.id, availableCents: { gte: amountCents } },
         data: {
-          type: "payment",
-          title: `Payment to ${recipient.name}`,
+          balanceCents: { decrement: amountCents },
+          availableCents: { decrement: amountCents },
+        },
+      });
+      if (debited.count === 0) {
+        throw badRequest("Insufficient available balance");
+      }
+
+      const fresh = await tx.account.findUniqueOrThrow({
+        where: { id: account.id },
+      });
+
+      const created = await tx.transfer.create({
+        data: {
+          reference: input.reference,
           amountCents,
-          payloadJson: JSON.stringify({
-            transferId: created.id,
-            fromAccountId: account.id,
-            recipientId: recipient.id,
-          }),
-          status: "pending",
-          transferId: created.id,
-          submittedById: userId,
+          fromAccountId: account.id,
+          recipientId: recipient.id,
+          status: "completed",
+          paymentDate,
+          createdById: userId,
+          idempotencyKey: input.idempotencyKey ?? null,
+        },
+        include: { recipient: true },
+      });
+
+      await tx.transaction.create({
+        data: {
+          accountId: account.id,
+          description: `Payment to ${recipient.name}`,
+          category: "Transfer",
+          direction: "debit",
+          amountCents,
+          status: "posted",
+          balanceAfterCents: fresh.balanceCents,
+          actorId: userId,
+          ipAddress,
         },
       });
 
       await tx.notification.create({
         data: {
           userId,
-          title: "Payment awaiting authorisation",
-          body: `A payment of R${fromCents(amountCents).toFixed(
-            2,
-          )} requires a second authoriser.`,
+          title: "Payment sent",
+          body: `R${fromCents(amountCents).toFixed(2)} paid to ${recipient.name}.`,
           severity: "info",
         },
       });
@@ -154,7 +280,7 @@ export async function createPayment(params: {
 
     await recordAudit({
       actorId: userId,
-      action: "payment.created.pending_authorisation",
+      action: "payment.completed",
       entity: "Transfer",
       entityId: transfer.id,
       metadata: { amountCents, recipientId: recipient.id },
@@ -163,112 +289,22 @@ export async function createPayment(params: {
 
     return {
       transfer,
-      requiresAuthorisation: true,
+      requiresAuthorisation: false,
       scheduled: false,
       idempotentReplay: false,
     };
-  }
-
-  if (isFuture) {
-    const transfer = await prisma.transfer.create({
-      data: {
-        reference: input.reference,
-        amountCents,
-        fromAccountId: account.id,
-        recipientId: recipient.id,
-        status: "scheduled",
-        paymentDate,
-        createdById: userId,
-        idempotencyKey: input.idempotencyKey ?? null,
-      },
-      include: { recipient: true },
-    });
-
-    await recordAudit({
-      actorId: userId,
-      action: "payment.scheduled",
-      entity: "Transfer",
-      entityId: transfer.id,
-      metadata: { amountCents, paymentDate },
-      ipAddress,
-    });
-
-    return {
-      transfer,
-      requiresAuthorisation: false,
-      scheduled: true,
-      idempotentReplay: false,
-    };
-  }
-
-  if (account.availableCents < amountCents) {
-    throw badRequest("Insufficient available balance");
-  }
-
-  const transfer = await prisma.$transaction(async (tx) => {
-    const created = await tx.transfer.create({
-      data: {
-        reference: input.reference,
-        amountCents,
-        fromAccountId: account.id,
-        recipientId: recipient.id,
-        status: "completed",
-        paymentDate,
-        createdById: userId,
-        idempotencyKey: input.idempotencyKey ?? null,
-      },
-      include: { recipient: true },
-    });
-
-    await tx.account.update({
-      where: { id: account.id },
-      data: {
-        balanceCents: { decrement: amountCents },
-        availableCents: { decrement: amountCents },
-      },
-    });
-
-    await tx.transaction.create({
-      data: {
-        accountId: account.id,
-        description: `Payment to ${recipient.name}`,
-        category: "Transfer",
-        direction: "debit",
-        amountCents,
-        status: "posted",
-        balanceAfterCents: account.balanceCents - amountCents,
-        actorId: userId,
-        ipAddress,
-      },
-    });
-
-    await tx.notification.create({
-      data: {
+  } catch (error) {
+    if (isUniqueViolation(error) && input.idempotencyKey) {
+      const existing = await findIdempotentTransfer(
         userId,
-        title: "Payment sent",
-        body: `R${fromCents(amountCents).toFixed(2)} paid to ${recipient.name}.`,
-        severity: "info",
-      },
-    });
-
-    return created;
-  });
-
-  await recordAudit({
-    actorId: userId,
-    action: "payment.completed",
-    entity: "Transfer",
-    entityId: transfer.id,
-    metadata: { amountCents, recipientId: recipient.id },
-    ipAddress,
-  });
-
-  return {
-    transfer,
-    requiresAuthorisation: false,
-    scheduled: false,
-    idempotentReplay: false,
-  };
+        input.idempotencyKey,
+      );
+      if (existing) {
+        return toReplay(existing);
+      }
+    }
+    throw error;
+  }
 }
 
 export async function listPayments(

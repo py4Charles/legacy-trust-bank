@@ -47,6 +47,7 @@ model LoginChallenge {
   id         String    @id @default(cuid())
   userId     String
   codeHash   String
+  attempts   Int       @default(0)
   expiresAt  DateTime
   consumedAt DateTime?
   createdAt  DateTime  @default(now())
@@ -138,13 +139,14 @@ model Transfer {
   paymentDate     DateTime
   createdById     String
   authorisedById  String?
-  idempotencyKey  String?   @unique
+  idempotencyKey  String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   fromAccount     Account   @relation("fromAccount", fields: [fromAccountId], references: [id], onDelete: Cascade)
   recipient       Recipient @relation(fields: [recipientId], references: [id])
 
+  @@unique([createdById, idempotencyKey])
   @@index([fromAccountId])
   @@index([status])
 }
