@@ -10,7 +10,7 @@ const stats = [
   { label: "Clients served", value: "2.4M+" },
   { label: "Countries", value: "12" },
   { label: "Uptime (12 mo.)", value: "99.99%" },
-  { label: "Fraud recovered", value: "R480M" },
+  { label: "Fraud recovered", value: "GH480M" },
 ];
 
 const trustSignals = [
@@ -52,8 +52,9 @@ export function HomePage() {
               Banking built on trust, designed for real life.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-white/80">
-              Manage your money, grow your savings and move it safely — all from
-              one secure app backed by decades of banking expertise.
+              Manage your money, grow your savings and move it safely. <br />
+              All from one secure app backed by decades of <br />
+              banking expertise.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/register" className={buttonClass("white", "lg")}>
