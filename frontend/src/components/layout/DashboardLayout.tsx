@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
 import { AnnouncementBanner } from "./AnnouncementBanner";
@@ -82,6 +82,25 @@ export function DashboardLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNotifOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [notifOpen]);
 
   const unread = useMemo(
     () => notifications.filter((n) => !n.read).length,
@@ -228,7 +247,7 @@ export function DashboardLayout() {
                 {greeting(new Date())}, {user?.name.split(" ")[0]}
               </p>
               <p className="text-xs text-ink-500">
-                {new Date().toLocaleDateString("en-ZA", {
+                {new Date().toLocaleDateString("en-GH", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
@@ -242,7 +261,7 @@ export function DashboardLayout() {
               {user?.role}
             </Badge>
 
-            <div className="relative">
+            <div className="relative" ref={notifRef}>
               <button
                 type="button"
                 className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink-600 transition-colors hover:bg-ink-100"
@@ -268,13 +287,7 @@ export function DashboardLayout() {
               </button>
 
               {notifOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setNotifOpen(false)}
-                    aria-hidden="true"
-                  />
-                  <div className="absolute right-0 top-12 z-20 w-80 overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-xl animate-fade-up">
+                <div className="absolute right-0 top-12 z-20 w-80 overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-xl animate-fade-up">
                     <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
                       <p className="text-sm font-semibold text-ink-900">
                         Notifications
@@ -311,8 +324,7 @@ export function DashboardLayout() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                </>
+                </div>
               )}
             </div>
 
