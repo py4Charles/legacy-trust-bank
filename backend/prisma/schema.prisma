@@ -63,7 +63,7 @@ model Account {
   name           String
   type           String // cheque | savings | credit | investment
   number         String        @unique
-  currency       String        @default("ZAR")
+  currency       String        @default("GHS")
   balanceCents   Int           @default(0)
   availableCents Int           @default(0)
   createdAt      DateTime      @default(now())

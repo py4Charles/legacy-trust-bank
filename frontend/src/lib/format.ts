@@ -1,9 +1,9 @@
 export function formatCurrency(
   amount: number,
-  currency = "ZAR",
+  currency = "GHS",
   options: Intl.NumberFormatOptions = {},
 ): string {
-  return new Intl.NumberFormat("en-ZA", {
+  return new Intl.NumberFormat("en-GH", {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
@@ -12,7 +12,7 @@ export function formatCurrency(
   }).format(amount);
 }
 
-export function formatSignedCurrency(amount: number, currency = "ZAR"): string {
+export function formatSignedCurrency(amount: number, currency = "GHS"): string {
   const formatted = formatCurrency(Math.abs(amount), currency);
   return amount >= 0 ? `+${formatted}` : `-${formatted}`;
 }
@@ -26,7 +26,7 @@ export function formatDate(iso: string): string {
 }
 
 export function formatDateTime(iso: string): string {
-  return new Intl.DateTimeFormat("en-ZA", {
+  return new Intl.DateTimeFormat("en-GH", {
     day: "2-digit",
     month: "short",
     year: "numeric",
