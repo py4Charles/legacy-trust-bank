@@ -19,10 +19,10 @@ const registerSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email"),
   phone: z
     .string()
-    .regex(/^0\d{9}$/, "Enter a valid 10-digit SA mobile number"),
+    .regex(/^0\d{9}$/, "Enter a valid 10-digit mobile number"),
   idNumber: z
     .string()
-    .regex(/^\d{13}$/, "Enter your 13-digit SA ID number"),
+    .regex(/^\d{13}$/, "Enter your 13-digit GH ID number"),
   product: z.enum(
     ["accounts", "savings", "loans", "cards"],
     { message: "Choose a product to apply for" },
@@ -122,12 +122,12 @@ export function RegisterPage() {
                 <Input
                   label="Mobile number"
                   inputMode="numeric"
-                  placeholder="0821234567"
+                  placeholder="+233 21 235 6978"
                   error={errors.phone?.message}
                   {...register("phone")}
                 />
                 <Input
-                  label="SA ID number"
+                  label="GH ID number"
                   inputMode="numeric"
                   placeholder="9001015800087"
                   error={errors.idNumber?.message}
