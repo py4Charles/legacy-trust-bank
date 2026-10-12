@@ -1,5 +1,6 @@
 import type {
   Account,
+  BannerMessage,
   NotificationItem,
   PaymentCard,
   PendingApproval,
@@ -435,6 +436,35 @@ export const notifications: NotificationItem[] = [
     date: "2026-10-05T12:02:00Z",
     read: true,
     severity: "info",
+  },
+];
+
+export const bannerMessages: BannerMessage[] = [
+  {
+    id: "bnr-promo-fees",
+    tone: "promotion",
+    message:
+      "Zero monthly fees on new Everyday Cheque Accounts until 31 December.",
+    link: { label: "Open an account", to: "/register" },
+  },
+  {
+    id: "bnr-update-app",
+    tone: "update",
+    message:
+      "Mobile banking 4.2 is live — faster payments and improved fraud alerts.",
+    link: { label: "See what's new", to: "/support" },
+  },
+  {
+    id: "bnr-alert-scam",
+    tone: "alert",
+    message: "Never share your OTP or PIN. We will never ask for them.",
+    link: { label: "Security centre", to: "/security" },
+  },
+  {
+    id: "bnr-promo-savings",
+    tone: "promotion",
+    message: "Lock in up to 9.5% p.a. on a 12-month fixed deposit.",
+    link: { label: "View rates", to: "/products/savings" },
   },
 ];
 

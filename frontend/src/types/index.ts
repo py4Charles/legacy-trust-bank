@@ -100,3 +100,17 @@ export interface NotificationItem {
   read: boolean;
   severity: "info" | "warning" | "critical";
 }
+
+export type BannerTone = "promotion" | "update" | "alert";
+
+export interface BannerLink {
+  label: string;
+  to: string;
+}
+
+export interface BannerMessage {
+  id: string;
+  tone: BannerTone;
+  message: string;
+  link?: BannerLink;
+}

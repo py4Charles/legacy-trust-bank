@@ -10,7 +10,7 @@ const stats = [
   { label: "Clients served", value: "2.4M+" },
   { label: "Countries", value: "12" },
   { label: "Uptime (12 mo.)", value: "99.99%" },
-  { label: "Fraud recovered", value: "GH480M" },
+  { label: "Fraud recovered", value: "GH₵480M" },
 ];
 
 const trustSignals = [

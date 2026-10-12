@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
+import { AnnouncementBanner } from "./AnnouncementBanner";
 import { Badge } from "@/components/ui/Badge";
 import { useAuthStore } from "@/store/auth";
 import { notifications } from "@/data/mock";
@@ -324,6 +325,8 @@ export function DashboardLayout() {
             </Link>
           </div>
         </header>
+
+        <AnnouncementBanner />
 
         <main className="flex-1 p-4 sm:p-8">
           <div className="mx-auto w-full max-w-6xl">
