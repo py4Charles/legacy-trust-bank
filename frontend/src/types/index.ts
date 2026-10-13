@@ -81,12 +81,12 @@ export interface SessionUser {
 export interface AuthResult {
   requiresTwoFactor: boolean;
   challengeId?: string;
+  devCode?: string;
 }
 
 export interface PendingApproval {
   id: string;
   title: string;
-  submittedBy: string;
   submittedAt: string;
   amount: number;
   type: "payment" | "beneficiary" | "limit-change";

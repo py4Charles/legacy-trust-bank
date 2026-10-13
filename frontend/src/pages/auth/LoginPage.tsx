@@ -37,6 +37,7 @@ export function LoginPage() {
   const verifyTwoFactor = useAuthStore((s) => s.verifyTwoFactor);
   const cancelTwoFactor = useAuthStore((s) => s.cancelTwoFactor);
   const error = useAuthStore((s) => s.error);
+  const devCode = useAuthStore((s) => s.devCode);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,15 +50,19 @@ export function LoginPage() {
 
   const otpForm = useForm<Otp>({ resolver: zodResolver(otpSchema) });
 
-  const onCredentials = (values: Credentials) => {
-    const result = login(values.email, values.password);
+  const onCredentials = async (values: Credentials) => {
+    const result = await login(values.email, values.password);
     if (result.requiresTwoFactor) {
       setStep("otp");
+      return;
+    }
+    if (!useAuthStore.getState().error) {
+      navigate(from, { replace: true });
     }
   };
 
-  const onOtp = (values: Otp) => {
-    if (verifyTwoFactor(values.code)) {
+  const onOtp = async (values: Otp) => {
+    if (await verifyTwoFactor(values.code)) {
       navigate(from, { replace: true });
     }
   };
@@ -165,10 +170,12 @@ export function LoginPage() {
                   onSubmit={otpForm.handleSubmit(onOtp)}
                   noValidate
                 >
-                  <div className="rounded-xl border border-brand-100 bg-brand-50/70 px-4 py-3 text-sm text-brand-800">
-                    For this demo, the code is{" "}
-                    <strong className="font-display">123456</strong>.
-                  </div>
+                  {devCode && (
+                    <div className="rounded-xl border border-brand-100 bg-brand-50/70 px-4 py-3 text-sm text-brand-800">
+                      For this demo, the code is{" "}
+                      <strong className="font-display">{devCode}</strong>.
+                    </div>
+                  )}
                   <Input
                     label="One-time code"
                     inputMode="numeric"
