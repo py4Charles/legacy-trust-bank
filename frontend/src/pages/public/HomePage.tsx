@@ -3,8 +3,9 @@ import { Container } from "@/components/ui/Container";
 import { Card, CardBody } from "@/components/ui/Card";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { Badge } from "@/components/ui/Badge";
-import { formatCurrency } from "@/lib/format";
 import { productCategories, products } from "@/data/mock";
+import woman from "@/assets/woman.png";
+import "@/styles/woman.css";
 
 const stats = [
   { label: "Clients served", value: "2.4M+" },
@@ -79,39 +80,16 @@ export function HomePage() {
             </dl>
           </div>
 
-          <div className="relative">
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur">
-              <p className="text-sm font-medium text-white/70">Available balance</p>
-              <p className="mt-1 text-3xl font-bold">
-                {formatCurrency(48250.75)}
-              </p>
-              <div className="mt-6 space-y-3">
-                {[
-                  { label: "Everyday Cheque", value: 48250.75 },
-                  { label: "Flexi Savings", value: 138420.0 },
-                ].map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between rounded-lg bg-white/10 px-4 py-3"
-                  >
-                    <span className="text-sm text-white/80">{row.label}</span>
-                    <span className="text-sm font-semibold">
-                      {formatCurrency(row.value)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
-                {["Transfer", "Pay Bills", "Buy Airtime"].map((action) => (
-                  <div
-                    key={action}
-                    className="rounded-lg bg-white/10 px-2 py-3 font-medium"
-                  >
-                    {action}
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="relative flex items-center justify-center">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 rounded-[2.5rem] bg-white/10 blur-2xl"
+            />
+            <img
+              src={woman}
+              alt="A Legacy Trust Bank client banking with confidence"
+              className="woman-image relative w-full max-w-2xl top-30 scale-100 object-cover"
+            />
           </div>
         </Container>
       </section>
