@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { approvalsApi } from "@/api";
+import { useApprovalsStore } from "@/store/approvals";
 import { useAsync } from "@/lib/useAsync";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import type { PendingApproval } from "@/types";
@@ -33,9 +34,15 @@ export function ApprovalsPage() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const setPendingCount = useApprovalsStore((s) => s.setPendingCount);
+
   useEffect(() => {
     if (approvalsState.data) setApprovals(approvalsState.data);
   }, [approvalsState.data]);
+
+  useEffect(() => {
+    if (approvalsState.data) setPendingCount(approvals.length);
+  }, [approvalsState.data, approvals.length, setPendingCount]);
 
   const decide = async (
     approval: PendingApproval,

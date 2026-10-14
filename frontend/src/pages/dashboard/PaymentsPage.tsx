@@ -12,6 +12,7 @@ import { accountsApi, paymentsApi, recipientsApi } from "@/api";
 import type { CreatePaymentResult } from "@/api";
 import { useAsync } from "@/lib/useAsync";
 import { formatCurrency } from "@/lib/format";
+import type { Recipient } from "@/types";
 
 const paymentSchema = z.object({
   fromAccount: z.string().min(1, "Select an account"),
@@ -29,6 +30,101 @@ const paymentSchema = z.object({
 
 type PaymentForm = z.infer<typeof paymentSchema>;
 
+const recipientSchema = z.object({
+  name: z.string().min(2, "Enter a name").max(120, "That name is too long"),
+  bank: z
+    .string()
+    .min(2, "Enter a bank")
+    .max(120, "That bank name is too long"),
+  accountNumber: z
+    .string()
+    .min(6, "At least 6 characters")
+    .max(34, "That account number is too long"),
+  reference: z.string().max(40, "That reference is too long").optional(),
+  favourite: z.boolean().optional(),
+});
+
+type RecipientForm = z.infer<typeof recipientSchema>;
+
+function AddRecipientForm({
+  onSubmit,
+  onCancel,
+  submitting,
+  error,
+}: {
+  onSubmit: (values: RecipientForm) => void;
+  onCancel: () => void;
+  submitting: boolean;
+  error: string | null;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RecipientForm>({
+    resolver: zodResolver(recipientSchema),
+    defaultValues: { favourite: false },
+  });
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="space-y-4 rounded-xl border border-ink-100 bg-ink-50/60 p-4"
+    >
+      <Input
+        label="Name"
+        placeholder="J. Naidoo"
+        error={errors.name?.message}
+        {...register("name")}
+      />
+      <Input
+        label="Bank"
+        placeholder="Legacy Trust Bank"
+        error={errors.bank?.message}
+        {...register("bank")}
+      />
+      <Input
+        label="Account number"
+        inputMode="numeric"
+        placeholder="621 990 4412"
+        error={errors.accountNumber?.message}
+        {...register("accountNumber")}
+      />
+      <Input
+        label="Reference (optional)"
+        placeholder="Rent"
+        error={errors.reference?.message}
+        {...register("reference")}
+      />
+      <label className="flex items-center gap-2 text-sm text-ink-700">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500/30"
+          {...register("favourite")}
+        />
+        Mark as favourite
+      </label>
+      {error && (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-negative-600"
+        >
+          {error}
+        </p>
+      )}
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={submitting}>
+          {submitting ? "Saving…" : "Save recipient"}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 interface Confirmation {
   amount: number;
   recipientName: string;
@@ -42,15 +138,21 @@ export function PaymentsPage() {
   const paymentsState = useAsync(() => paymentsApi.list(), []);
 
   const accounts = accountsState.data ?? [];
-  const recipients = recipientsState.data ?? [];
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showAddRecipient, setShowAddRecipient] = useState(false);
+  const [savingRecipient, setSavingRecipient] = useState(false);
+  const [recipientError, setRecipientError] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
@@ -60,6 +162,10 @@ export function PaymentsPage() {
       paymentDate: new Date().toISOString().slice(0, 10),
     },
   });
+
+  useEffect(() => {
+    if (recipientsState.data) setRecipients(recipientsState.data);
+  }, [recipientsState.data]);
 
   useEffect(() => {
     if (!accountsState.data || !recipientsState.data) return;
@@ -127,6 +233,45 @@ export function PaymentsPage() {
   };
 
   const availableAccounts = accounts.filter((a) => a.type !== "investment");
+
+  const handleAddRecipient = async (values: RecipientForm) => {
+    setSavingRecipient(true);
+    setRecipientError(null);
+    try {
+      const recipient = await recipientsApi.create({
+        name: values.name,
+        bank: values.bank,
+        accountNumber: values.accountNumber,
+        reference: values.reference || undefined,
+        favourite: values.favourite,
+      });
+      setRecipients((prev) => [...prev, recipient]);
+      setShowAddRecipient(false);
+      setValue("recipient", recipient.id);
+    } catch (err) {
+      setRecipientError(
+        err instanceof Error ? err.message : "Could not add the recipient",
+      );
+    } finally {
+      setSavingRecipient(false);
+    }
+  };
+
+  const handleRemoveRecipient = async (id: string) => {
+    setRemovingId(id);
+    setRecipientError(null);
+    try {
+      await recipientsApi.remove(id);
+      setRecipients((prev) => prev.filter((item) => item.id !== id));
+      if (getValues("recipient") === id) setValue("recipient", "");
+    } catch (err) {
+      setRecipientError(
+        err instanceof Error ? err.message : "Could not remove the recipient",
+      );
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -266,11 +411,36 @@ export function PaymentsPage() {
           <Card className="animate-fade-up">
             <CardHeader>
               <CardTitle>Recipients</CardTitle>
-              <Button variant="ghost" size="sm">
-                Add new
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowAddRecipient((open) => !open);
+                  setRecipientError(null);
+                }}
+              >
+                {showAddRecipient ? "Close" : "Add new"}
               </Button>
             </CardHeader>
             <CardBody className="space-y-3">
+              {showAddRecipient && (
+                <AddRecipientForm
+                  onSubmit={handleAddRecipient}
+                  onCancel={() => setShowAddRecipient(false)}
+                  submitting={savingRecipient}
+                  error={recipientError}
+                />
+              )}
+
+              {!showAddRecipient && recipientError && (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-negative-600"
+                >
+                  {recipientError}
+                </p>
+              )}
+
               {recipients.length > 0 ? (
                 recipients.map((recipient) => {
                   const initials = recipient.name
@@ -282,7 +452,7 @@ export function PaymentsPage() {
                   return (
                     <div
                       key={recipient.id}
-                      className="flex items-center gap-3 rounded-xl border border-ink-100 p-3 transition-colors hover:border-ink-200"
+                      className="group flex items-center gap-3 rounded-xl border border-ink-100 p-3 transition-colors hover:border-ink-200"
                     >
                       <span
                         aria-hidden="true"
@@ -301,6 +471,26 @@ export function PaymentsPage() {
                           {recipient.bank} · {recipient.accountNumber}
                         </p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRecipient(recipient.id)}
+                        disabled={removingId === recipient.id}
+                        aria-label={`Remove ${recipient.name}`}
+                        className="shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-negative-600 disabled:opacity-50"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        >
+                          <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                        </svg>
+                      </button>
                     </div>
                   );
                 })

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { PageHero } from "@/components/ui/PageHero";
 import { cardsApi } from "@/api";
 import { useAsync } from "@/lib/useAsync";
@@ -13,6 +14,9 @@ export function CardsPage() {
   const cardsState = useAsync(() => cardsApi.list(), []);
   const [cards, setCards] = useState<PaymentCard[]>([]);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [limitValue, setLimitValue] = useState("");
+  const [savingLimit, setSavingLimit] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +37,29 @@ export function CardsPage() {
       );
     } finally {
       setPendingId(null);
+    }
+  };
+
+  const saveLimit = async (card: PaymentCard) => {
+    const parsed = Number(limitValue);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setError("Enter a valid monthly limit greater than zero");
+      return;
+    }
+    setSavingLimit(true);
+    setError(null);
+    try {
+      const updated = await cardsApi.updateLimit(card.id, parsed);
+      setCards((prev) =>
+        prev.map((current) => (current.id === updated.id ? updated : current)),
+      );
+      setEditingId(null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not update the limit",
+      );
+    } finally {
+      setSavingLimit(false);
     }
   };
 
@@ -175,13 +202,51 @@ export function CardsPage() {
                           ? "Unfreeze card"
                           : "Freeze card"}
                     </Button>
-                    <Button variant="outline" size="sm">
-                      Change limits
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingId(card.id === editingId ? null : card.id);
+                        setLimitValue(String(card.monthlyLimit));
+                      }}
+                    >
+                      {editingId === card.id ? "Close" : "Change limits"}
                     </Button>
                     <Button variant="ghost" size="sm">
                       View PIN
                     </Button>
                   </div>
+
+                  {editingId === card.id && (
+                    <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
+                      <Input
+                        label="Monthly limit (GHS)"
+                        type="number"
+                        min="1"
+                        step="1"
+                        inputMode="decimal"
+                        value={limitValue}
+                        onChange={(event) => setLimitValue(event.target.value)}
+                        hint="Applies to card spending for the current month."
+                      />
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          size="sm"
+                          disabled={savingLimit}
+                          onClick={() => saveLimit(card)}
+                        >
+                          {savingLimit ? "Saving…" : "Save limit"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardBody>
               </Card>
             );

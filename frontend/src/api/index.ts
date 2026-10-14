@@ -322,10 +322,26 @@ export const cardsApi = {
   },
 };
 
+export interface CreateRecipientInput {
+  name: string;
+  bank: string;
+  accountNumber: string;
+  reference?: string;
+  favourite?: boolean;
+}
+
 export const recipientsApi = {
   async list(): Promise<Recipient[]> {
     const data = await apiRequest<{ recipients: ApiRecipient[] }>("/recipients");
     return data.recipients.map(toRecipient);
+  },
+
+  async create(input: CreateRecipientInput): Promise<Recipient> {
+    const data = await apiRequest<{ recipient: ApiRecipient }>("/recipients", {
+      method: "POST",
+      body: input,
+    });
+    return toRecipient(data.recipient);
   },
 
   async remove(id: string): Promise<void> {

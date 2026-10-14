@@ -4,6 +4,7 @@ import { Logo } from "./Logo";
 import { AnnouncementBanner } from "./AnnouncementBanner";
 import { Badge } from "@/components/ui/Badge";
 import { useAuthStore } from "@/store/auth";
+import { useApprovalsStore } from "@/store/approvals";
 import { approvalsApi, notificationsApi } from "@/api";
 import { cn } from "@/lib/utils";
 import type { NotificationItem } from "@/types";
@@ -81,7 +82,8 @@ export function DashboardLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unread, setUnread] = useState(0);
-  const [pendingApprovals, setPendingApprovals] = useState(0);
+  const pendingApprovals = useApprovalsStore((s) => s.pendingCount);
+  const setPendingCount = useApprovalsStore((s) => s.setPendingCount);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -102,7 +104,7 @@ export function DashboardLayout() {
     approvalsApi
       .list()
       .then((result) => {
-        if (active) setPendingApprovals(result.length);
+        if (active) setPendingCount(result.length);
       })
       .catch(() => undefined);
 
