@@ -7,6 +7,7 @@ import { buttonClass } from "@/components/ui/buttonStyles";
 import { Badge } from "@/components/ui/Badge";
 import { productCategories, products } from "@/data/mock";
 import woman from "@/assets/woman.png";
+import everydayCheque from "@/assets/everyday-cheque.png";
 import "@/styles/woman.css";
 
 const stats = [
@@ -37,6 +38,10 @@ const quickAccess = [
   { label: "Report Fraud", href: "/security" },
   { label: "Contact Us", href: "/support" },
 ];
+
+const productImages: Record<string, string> = {
+  "everyday-cheque": everydayCheque,
+};
 
 const categoryIcons: Record<string, ReactNode> = {
   accounts: (
@@ -234,23 +239,33 @@ export function HomePage() {
                         : "right-0 translate-x-full group-hover:translate-x-0 [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
                     )}
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-8 w-8"
-                        aria-hidden="true"
-                      >
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <path d="m21 15-5-5L5 21" />
-                      </svg>
-                      <span className="text-xs font-medium">Sample image</span>
-                    </div>
+                    {productImages[product.slug] ? (
+                      <img
+                        src={productImages[product.slug]}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-8 w-8"
+                          aria-hidden="true"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <path d="m21 15-5-5L5 21" />
+                        </svg>
+                        <span className="text-xs font-medium">
+                          Sample image
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <svg
