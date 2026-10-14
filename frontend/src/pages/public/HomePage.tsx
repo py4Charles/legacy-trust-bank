@@ -9,6 +9,7 @@ import { productCategories, products } from "@/data/mock";
 import woman from "@/assets/woman.png";
 import everydayCheque from "@/assets/everyday-cheque.png";
 import flexiSavings from "@/assets/flexi-savings.png";
+import aspireCredit from "@/assets/aspire-credit.png";
 import "@/styles/woman.css";
 
 const stats = [
@@ -43,6 +44,7 @@ const quickAccess = [
 const productImages: Record<string, string> = {
   "everyday-cheque": everydayCheque,
   "flex-savings": flexiSavings,
+  "aspire-credit-card": aspireCredit,
 };
 
 const categoryIcons: Record<string, ReactNode> = {
@@ -242,7 +244,11 @@ export function HomePage() {
                         <img
                           src={productImages[product.slug]}
                           alt={product.name}
-                          className="h-full w-full object-cover"
+                          className={cn(
+                            "h-80 w-full object-cover",
+                            product.slug === "aspire-credit-card" &&
+                              "brightness-120",
+                          )}
                         />
                       ) : (
                         <div className="flex flex-col items-center gap-2">
