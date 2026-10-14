@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { productCategories, products } from "@/data/mock";
 import woman from "@/assets/woman.png";
 import everydayCheque from "@/assets/everyday-cheque.png";
+import flexiSavings from "@/assets/flexi-savings.png";
 import "@/styles/woman.css";
 
 const stats = [
@@ -41,6 +42,7 @@ const quickAccess = [
 
 const productImages: Record<string, string> = {
   "everyday-cheque": everydayCheque,
+  "flex-savings": flexiSavings,
 };
 
 const categoryIcons: Record<string, ReactNode> = {
@@ -200,90 +202,88 @@ export function HomePage() {
             {featured.map((product, index) => {
               const textOnRight = index % 2 === 1;
               return (
-                <Card
-                  key={product.slug}
-                  className="group relative overflow-hidden"
-                >
-                  <CardBody
-                    className={cn(
-                      "relative z-10 flex min-h-56 flex-col justify-center md:w-1/2",
-                      textOnRight && "md:ml-auto",
-                    )}
-                  >
-                    <Badge tone="brand" className="self-start">
-                      {product.category}
-                    </Badge>
-                    <h3 className="mt-3 text-2xl font-semibold">
-                      {product.name}
-                    </h3>
-                    <p className="mt-2 text-sm text-ink-600">
-                      {product.tagline}
-                    </p>
-                    <p className="mt-4 text-sm font-semibold text-ink-900">
-                      {product.monthlyFee}
-                    </p>
-                    <Link
-                      to={`/products/${product.category}/${product.slug}`}
-                      className={buttonClass("outline", "sm", "mt-5 self-start")}
-                    >
-                      Learn more
-                    </Link>
-                  </CardBody>
-
+                <Card key={product.slug} className="relative overflow-hidden">
                   <div
-                    aria-hidden="true"
                     className={cn(
-                      "pointer-events-none absolute inset-y-0 z-20 hidden w-1/2 items-center justify-center bg-ink-100 text-ink-400 transition-transform duration-500 ease-out md:flex",
-                      textOnRight
-                        ? "left-0 -translate-x-full group-hover:translate-x-0 [clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
-                        : "right-0 translate-x-full group-hover:translate-x-0 [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
+                      "flex items-stretch",
+                      textOnRight && "flex-row-reverse",
                     )}
                   >
-                    {productImages[product.slug] ? (
-                      <img
-                        src={productImages[product.slug]}
-                        alt={product.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-8 w-8"
-                          aria-hidden="true"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <path d="m21 15-5-5L5 21" />
-                        </svg>
-                        <span className="text-xs font-medium">
-                          Sample image
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                    <CardBody className="flex min-h-56 flex-1 flex-col justify-center">
+                      <Badge tone="brand" className="self-start">
+                        {product.category}
+                      </Badge>
+                      <h3 className="mt-3 text-2xl font-semibold">
+                        {product.name}
+                      </h3>
+                      <p className="mt-2 text-sm text-ink-600">
+                        {product.tagline}
+                      </p>
+                      <p className="mt-4 text-sm font-semibold text-ink-900">
+                        {product.monthlyFee}
+                      </p>
+                      <Link
+                        to={`/products/${product.category}/${product.slug}`}
+                        className={buttonClass("outline", "sm", "mt-5 self-start")}
+                      >
+                        Learn more
+                      </Link>
+                    </CardBody>
 
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 100 100"
-                    preserveAspectRatio="none"
-                    className="pointer-events-none absolute inset-0 z-30 hidden h-full w-full text-white opacity-0 transition-opacity duration-500 group-hover:opacity-100 md:block"
-                  >
-                    <line
-                      x1={textOnRight ? 41 : 59}
-                      y1="0"
-                      x2="50"
-                      y2="100"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  </svg>
+                    <div
+                      className={cn(
+                        "flex w-1/2 shrink-0 items-center justify-center bg-ink-100 text-ink-400",
+                        textOnRight
+                          ? "[clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
+                          : "[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
+                      )}
+                    >
+                      {productImages[product.slug] ? (
+                        <img
+                          src={productImages[product.slug]}
+                          alt={product.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-8 w-8"
+                            aria-hidden="true"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg>
+                          <span className="text-xs font-medium">
+                            Sample image
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                      className="pointer-events-none absolute inset-0 z-10 h-full w-full text-white"
+                    >
+                      <line
+                        x1={textOnRight ? 41 : 59}
+                        y1="0"
+                        x2="50"
+                        y2="100"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </svg>
+                  </div>
                 </Card>
               );
             })}
