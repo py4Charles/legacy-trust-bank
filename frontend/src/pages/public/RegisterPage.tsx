@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/Select";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { productCategories } from "@/data/mock";
 import { authApi } from "@/api";
+import logoBackground from "@/assets/logo-background.png";
 
 const registerSchema = z
   .object({
@@ -77,8 +78,14 @@ export function RegisterPage() {
 
   if (submitted) {
     return (
-      <Container className="max-w-xl py-20">
-        <Card className="animate-fade-up">
+      <Container className="relative max-w-xl overflow-hidden py-20">
+        <img
+          src={logoBackground}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[125%] w-auto -translate-x-1/2 -translate-y-1/2 rotate-[35deg] select-none object-contain opacity-[0.15]"
+        />
+        <Card className="relative animate-fade-up">
           <CardBody className="text-center">
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-positive-700 text-white shadow-lg shadow-emerald-500/30">
               <svg
@@ -111,8 +118,14 @@ export function RegisterPage() {
   }
 
   return (
-    <Container className="py-14">
-      <div className="mx-auto max-w-xl">
+      <Container className="relative overflow-hidden py-14">
+        <img
+          src={logoBackground}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-auto -translate-x-1/2 -translate-y-1/2 rotate-[65deg] select-none object-contain opacity-[0.05]"
+        />
+        <div className="relative mx-auto max-w-xl">
         <p className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700 ring-1 ring-brand-100">
           Apply online
         </p>
