@@ -88,7 +88,7 @@ export function HomePage() {
             <img
               src={woman}
               alt="A Legacy Trust Bank client banking with confidence"
-              className="woman-image relative w-full max-w-2xl top-30 scale-100 object-cover"
+              className="woman-image relative w-full max-w-2xl left-40 top-20 scale-150 object-cover"
             />
           </div>
         </Container>
