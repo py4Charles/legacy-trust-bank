@@ -30,8 +30,8 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://ltb:ltb@db:5432/ltb?schema=public
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-dev-access-secret-change-me}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-local-dev-refresh-secret-change-me}
+      JWT_ACCESS_SECRET: ${omhe8GTJZYzWrBmuDBdNsGHn0IxvVP71ByK8CQmgjuW9VRC_MEDM1qes1Q23Rg8l}
+      JWT_REFRESH_SECRET: ${Ui1ys3rW4GJLRXfeKY6WTgnLJpVrbXNVxs9jyDoYqY5pWX7edPeqkGLyIUSf0cvM}
       ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-15m}
       REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-30d}
       TWO_FACTOR_ENABLED: ${TWO_FACTOR_ENABLED:-true}
