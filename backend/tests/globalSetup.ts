@@ -7,7 +7,7 @@ export default function globalSetup(): void {
       process.env.TEST_DATABASE_URL ??
       "postgresql://ltb:ltb@localhost:5432/ltb_test?schema=public",
   };
-  execSync("npx prisma db push --skip-generate --force-reset", {
+  execSync("npx prisma migrate reset --force --skip-generate --skip-seed", {
     stdio: "inherit",
     env,
   });
