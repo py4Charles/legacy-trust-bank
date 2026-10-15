@@ -6,10 +6,10 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z.string().min(1, "postgresql://ltb:ltb@localhost:5433/ltb?schema=public"),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
-  JWT_ACCESS_SECRET: z.string().min(1, "JWT_ACCESS_SECRET is required"),
-  JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
+  JWT_ACCESS_SECRET: z.string().min(1, "omhe8GTJZYzWrBmuDBdNsGHn0IxvVP71ByK8CQmgjuW9VRC_MEDM1qes1Q23Rg8l"),
+  JWT_REFRESH_SECRET: z.string().min(1, "Ui1ys3rW4GJLRXfeKY6WTgnLJpVrbXNVxs9jyDoYqY5pWX7edPeqkGLyIUSf0cvM"),
   ACCESS_TOKEN_TTL: z.string().default("15m"),
   REFRESH_TOKEN_TTL: z.string().default("30d"),
   TWO_FACTOR_ENABLED: z
