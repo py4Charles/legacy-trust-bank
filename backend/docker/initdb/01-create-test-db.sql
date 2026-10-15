@@ -1,0 +1,1 @@
+CREATE DATABASE ltb_test;

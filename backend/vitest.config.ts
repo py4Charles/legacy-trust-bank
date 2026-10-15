@@ -8,7 +8,9 @@ export default defineConfig({
     globalSetup: ["./tests/globalSetup.ts"],
     env: {
       NODE_ENV: "test",
-      DATABASE_URL: "file:./test.db",
+      DATABASE_URL:
+        process.env.TEST_DATABASE_URL ??
+        "postgresql://ltb:ltb@localhost:5432/ltb_test?schema=public",
       JWT_ACCESS_SECRET: "test-access-secret",
       JWT_REFRESH_SECRET: "test-refresh-secret",
       ACCESS_TOKEN_TTL: "15m",
