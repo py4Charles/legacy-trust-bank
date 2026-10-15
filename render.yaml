@@ -12,6 +12,11 @@ services:
     dockerContext: ./backend
     plan: free
     healthCheckPath: /api/health
+    # Migrations run on startup via the Dockerfile CMD (`prisma migrate deploy`),
+    # which is the only option on the Free instance type. After upgrading to a
+    # paid plan, uncomment the line below and drop the migrate step from the
+    # Dockerfile CMD so migrations run once per deploy on a separate instance.
+    # preDeployCommand: npx prisma migrate deploy
     envVars:
       - key: DATABASE_URL
         fromDatabase:
