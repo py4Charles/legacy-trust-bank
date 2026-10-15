@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import favicon from "@/assets/favicon.svg";
 
 interface LogoProps {
   className?: string;
@@ -16,25 +17,12 @@ export function Logo({ className, tone = "dark" }: LogoProps) {
       className={cn("group inline-flex items-center gap-2.5", className)}
       aria-label="Legacy Trust Bank home"
     >
-      <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-brand-950 text-white shadow-lg shadow-brand-600/30">
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-1/2 bg-white/20"
-        />
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="relative h-5 w-5"
-          aria-hidden="true"
-        >
-          <path d="M12 3 4 6v5c0 4.5 3.4 8.3 8 10 4.6-1.7 8-5.5 8-10V6l-8-3Z" />
-          <path d="M9 12l2 2 4-4" />
-        </svg>
-      </span>
+      <img
+        src={favicon}
+        alt=""
+        aria-hidden="true"
+        className="h-9 w-9 shrink-0 object-contain"
+      />
       <span className="flex flex-col leading-none">
         <span className={cn("text-base font-bold tracking-tight", textColor)}>
           Legacy Trust

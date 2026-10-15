@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { label: "Home", to: "/" },
   { label: "Accounts", to: "/products/accounts" },
   { label: "Savings", to: "/products/savings" },
   { label: "Loans", to: "/products/loans" },

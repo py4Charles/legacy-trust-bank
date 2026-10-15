@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
+import { AnnouncementBanner } from "./AnnouncementBanner";
 import { Badge } from "@/components/ui/Badge";
 import { useAuthStore } from "@/store/auth";
-import { notifications } from "@/data/mock";
+import { useApprovalsStore } from "@/store/approvals";
+import { approvalsApi, notificationsApi } from "@/api";
 import { cn } from "@/lib/utils";
 import type { NotificationItem } from "@/types";
 
@@ -12,7 +14,7 @@ const navItems = [
   { label: "Accounts", to: "/dashboard/accounts", icon: "wallet" },
   { label: "Payments", to: "/dashboard/payments", icon: "send" },
   { label: "Cards", to: "/dashboard/cards", icon: "card" },
-  { label: "Approvals", to: "/dashboard/approvals", icon: "check", badge: 2 },
+  { label: "Approvals", to: "/dashboard/approvals", icon: "check" },
   { label: "Settings", to: "/dashboard/settings", icon: "cog" },
 ];
 
@@ -78,14 +80,57 @@ function greeting(date: Date) {
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unread, setUnread] = useState(0);
+  const pendingApprovals = useApprovalsStore((s) => s.pendingCount);
+  const setPendingCount = useApprovalsStore((s) => s.setPendingCount);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const notifRef = useRef<HTMLDivElement>(null);
 
-  const unread = useMemo(
-    () => notifications.filter((n) => !n.read).length,
-    [],
-  );
+  useEffect(() => {
+    let active = true;
+
+    notificationsApi
+      .list()
+      .then((result) => {
+        if (!active) return;
+        setNotifications(result.notifications);
+        setUnread(result.unread);
+      })
+      .catch(() => undefined);
+
+    approvalsApi
+      .list()
+      .then((result) => {
+        if (active) setPendingCount(result.length);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNotifOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [notifOpen]);
+
   const initials = (user?.name ?? "U")
     .split(" ")
     .map((part) => part[0])
@@ -93,9 +138,15 @@ export function DashboardLayout() {
     .join("")
     .toUpperCase();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login", { replace: true });
+  };
+
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnread(0);
+    notificationsApi.markAllRead().catch(() => undefined);
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -113,36 +164,40 @@ export function DashboardLayout() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1" aria-label="Dashboard">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === "/dashboard"}
-            className={linkClass}
-            onClick={() => setSidebarOpen(false)}
-          >
-            {({ isActive }) => (
-              <>
-                <span
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
-                    isActive
-                      ? "bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm shadow-brand-600/30"
-                      : "bg-ink-100 text-ink-500 group-hover:bg-white group-hover:text-brand-600",
-                  )}
-                >
-                  <NavIcon name={item.icon} />
-                </span>
-                <span className="flex-1">{item.label}</span>
-                {item.badge ? (
-                  <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[11px] font-bold text-ink-950">
-                    {item.badge}
+        {navItems.map((item) => {
+          const badge =
+            item.to === "/dashboard/approvals" ? pendingApprovals : 0;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/dashboard"}
+              className={linkClass}
+              onClick={() => setSidebarOpen(false)}
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={cn(
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                      isActive
+                        ? "bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm shadow-brand-600/30"
+                        : "bg-ink-100 text-ink-500 group-hover:bg-white group-hover:text-brand-600",
+                    )}
+                  >
+                    <NavIcon name={item.icon} />
                   </span>
-                ) : null}
-              </>
-            )}
-          </NavLink>
-        ))}
+                  <span className="flex-1">{item.label}</span>
+                  {badge > 0 ? (
+                    <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[11px] font-bold text-ink-950">
+                      {badge}
+                    </span>
+                  ) : null}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
       <div className="rounded-2xl bg-gradient-to-br from-ink-900 to-ink-950 p-4 text-white shadow-lg shadow-ink-950/20">
@@ -227,7 +282,7 @@ export function DashboardLayout() {
                 {greeting(new Date())}, {user?.name.split(" ")[0]}
               </p>
               <p className="text-xs text-ink-500">
-                {new Date().toLocaleDateString("en-ZA", {
+                {new Date().toLocaleDateString("en-GH", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
@@ -241,7 +296,7 @@ export function DashboardLayout() {
               {user?.role}
             </Badge>
 
-            <div className="relative">
+            <div className="relative" ref={notifRef}>
               <button
                 type="button"
                 className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink-600 transition-colors hover:bg-ink-100"
@@ -267,19 +322,24 @@ export function DashboardLayout() {
               </button>
 
               {notifOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setNotifOpen(false)}
-                    aria-hidden="true"
-                  />
-                  <div className="absolute right-0 top-12 z-20 w-80 overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-xl animate-fade-up">
-                    <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
-                      <p className="text-sm font-semibold text-ink-900">
-                        Notifications
-                      </p>
-                      <Badge tone="warning">{unread} new</Badge>
-                    </div>
+                <div className="absolute right-0 top-12 z-20 w-80 overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-xl animate-fade-up">
+                  <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
+                    <p className="text-sm font-semibold text-ink-900">
+                      Notifications
+                    </p>
+                    {unread > 0 ? (
+                      <button
+                        type="button"
+                        onClick={handleMarkAllRead}
+                        className="text-xs font-semibold text-brand-700 hover:text-brand-800"
+                      >
+                        Mark all read
+                      </button>
+                    ) : (
+                      <Badge tone="neutral">All read</Badge>
+                    )}
+                  </div>
+                  {notifications.length > 0 ? (
                     <ul className="max-h-96 divide-y divide-ink-100 overflow-y-auto">
                       {notifications.map((notification) => (
                         <li key={notification.id} className="px-4 py-3">
@@ -310,8 +370,12 @@ export function DashboardLayout() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                </>
+                  ) : (
+                    <p className="px-4 py-8 text-center text-sm text-ink-500">
+                      You have no notifications.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
@@ -324,6 +388,8 @@ export function DashboardLayout() {
             </Link>
           </div>
         </header>
+
+        <AnnouncementBanner />
 
         <main className="flex-1 p-4 sm:p-8">
           <div className="mx-auto w-full max-w-6xl">

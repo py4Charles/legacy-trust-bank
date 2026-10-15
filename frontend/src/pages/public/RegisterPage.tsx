@@ -10,29 +10,42 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { productCategories } from "@/data/mock";
+import { authApi } from "@/api";
+import logoBackground from "@/assets/logo-background.png";
 
-const registerSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, "Please enter your full name")
-    .max(120, "That name is too long"),
-  email: z.string().min(1, "Email is required").email("Enter a valid email"),
-  phone: z
-    .string()
-    .regex(/^0\d{9}$/, "Enter a valid 10-digit SA mobile number"),
-  idNumber: z
-    .string()
-    .regex(/^\d{13}$/, "Enter your 13-digit SA ID number"),
-  product: z.enum(
-    ["accounts", "savings", "loans", "cards"],
-    { message: "Choose a product to apply for" },
-  ),
-});
+const registerSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, "Please enter your full name")
+      .max(120, "That name is too long"),
+    email: z.string().min(1, "Email is required").email("Enter a valid email"),
+    phone: z
+      .string()
+      .regex(/^0\d{9}$/, "Enter a valid 10-digit mobile number"),
+    idNumber: z
+      .string()
+      .regex(/^\d{13}$/, "Enter your 13-digit GH ID number"),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .max(128, "That password is too long"),
+    confirm: z.string().min(1, "Confirm your password"),
+    product: z.enum(
+      ["accounts", "savings", "loans", "cards"],
+      { message: "Choose a product to apply for" },
+    ),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords do not match",
+    path: ["confirm"],
+  });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
   const [submitted, setSubmitted] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -44,14 +57,35 @@ export function RegisterPage() {
   });
 
   const onSubmit = async (values: RegisterForm) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setSubmitted(values.fullName);
+    setError(null);
+    try {
+      await authApi.register({
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+        idNumber: values.idNumber,
+      });
+      setSubmitted(values.fullName);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn't submit your application. Please try again.",
+      );
+    }
   };
 
   if (submitted) {
     return (
-      <Container className="max-w-xl py-20">
-        <Card className="animate-fade-up">
+      <Container className="relative max-w-xl overflow-hidden py-20">
+        <img
+          src={logoBackground}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[125%] w-auto -translate-x-1/2 -translate-y-1/2 rotate-[35deg] select-none object-contain opacity-[0.15]"
+        />
+        <Card className="relative animate-fade-up">
           <CardBody className="text-center">
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-positive-700 text-white shadow-lg shadow-emerald-500/30">
               <svg
@@ -84,8 +118,14 @@ export function RegisterPage() {
   }
 
   return (
-    <Container className="py-14">
-      <div className="mx-auto max-w-xl">
+      <Container className="relative overflow-hidden py-14">
+        <img
+          src={logoBackground}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-auto -translate-x-1/2 -translate-y-1/2 rotate-[65deg] select-none object-contain opacity-[0.05]"
+        />
+        <div className="relative mx-auto max-w-xl">
         <p className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700 ring-1 ring-brand-100">
           Apply online
         </p>
@@ -122,16 +162,34 @@ export function RegisterPage() {
                 <Input
                   label="Mobile number"
                   inputMode="numeric"
-                  placeholder="0821234567"
+                  placeholder="+233 21 235 6978"
                   error={errors.phone?.message}
                   {...register("phone")}
                 />
                 <Input
-                  label="SA ID number"
+                  label="GH ID number"
                   inputMode="numeric"
                   placeholder="9001015800087"
                   error={errors.idNumber?.message}
                   {...register("idNumber")}
+                />
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Input
+                  label="Password"
+                  type="password"
+                  autoComplete="new-password"
+                  hint="Min 8 characters."
+                  error={errors.password?.message}
+                  {...register("password")}
+                />
+                <Input
+                  label="Confirm password"
+                  type="password"
+                  autoComplete="new-password"
+                  error={errors.confirm?.message}
+                  {...register("confirm")}
                 />
               </div>
 
@@ -146,6 +204,15 @@ export function RegisterPage() {
                   </option>
                 ))}
               </Select>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-negative-600"
+                >
+                  {error}
+                </p>
+              )}
 
               <p className="text-xs text-ink-500">
                 By continuing you agree to our terms of use and privacy policy.

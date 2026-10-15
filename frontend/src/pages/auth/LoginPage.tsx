@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/layout/Logo";
 import { useAuthStore } from "@/store/auth";
 import { demoUser } from "@/data/mock";
+import logoBackground from "@/assets/logo-background.png";
 
 const credentialsSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email"),
@@ -37,6 +38,7 @@ export function LoginPage() {
   const verifyTwoFactor = useAuthStore((s) => s.verifyTwoFactor);
   const cancelTwoFactor = useAuthStore((s) => s.cancelTwoFactor);
   const error = useAuthStore((s) => s.error);
+  const devCode = useAuthStore((s) => s.devCode);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,15 +51,19 @@ export function LoginPage() {
 
   const otpForm = useForm<Otp>({ resolver: zodResolver(otpSchema) });
 
-  const onCredentials = (values: Credentials) => {
-    const result = login(values.email, values.password);
+  const onCredentials = async (values: Credentials) => {
+    const result = await login(values.email, values.password);
     if (result.requiresTwoFactor) {
       setStep("otp");
+      return;
+    }
+    if (!useAuthStore.getState().error) {
+      navigate(from, { replace: true });
     }
   };
 
-  const onOtp = (values: Otp) => {
-    if (verifyTwoFactor(values.code)) {
+  const onOtp = async (values: Otp) => {
+    if (await verifyTwoFactor(values.code)) {
       navigate(from, { replace: true });
     }
   };
@@ -70,8 +76,14 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen bg-ink-50 lg:grid-cols-2">
-      <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
-        <div className="mx-auto w-full max-w-md animate-fade-up">
+      <div className="relative flex flex-col justify-center overflow-hidden px-6 py-12 sm:px-12">
+        <img
+          src={logoBackground}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[125%] w-auto -translate-x-1/2 -translate-y-1/2 rotate-[35deg] select-none object-contain opacity-[0.09]"
+        />
+        <div className="relative mx-auto w-full max-w-md animate-fade-up">
           <div className="lg:hidden">
             <Logo />
           </div>
@@ -165,10 +177,12 @@ export function LoginPage() {
                   onSubmit={otpForm.handleSubmit(onOtp)}
                   noValidate
                 >
-                  <div className="rounded-xl border border-brand-100 bg-brand-50/70 px-4 py-3 text-sm text-brand-800">
-                    For this demo, the code is{" "}
-                    <strong className="font-display">123456</strong>.
-                  </div>
+                  {devCode && (
+                    <div className="rounded-xl border border-brand-100 bg-brand-50/70 px-4 py-3 text-sm text-brand-800">
+                      For this demo, the code is{" "}
+                      <strong className="font-display">{devCode}</strong>.
+                    </div>
+                  )}
                   <Input
                     label="One-time code"
                     inputMode="numeric"

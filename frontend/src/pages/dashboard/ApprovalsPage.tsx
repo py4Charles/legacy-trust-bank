@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
-import { pendingApprovals as seedApprovals } from "@/data/mock";
+import { approvalsApi } from "@/api";
+import { useApprovalsStore } from "@/store/approvals";
+import { useAsync } from "@/lib/useAsync";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import type { PendingApproval } from "@/types";
 
@@ -19,15 +21,52 @@ const typeTone: Record<PendingApproval["type"], "brand" | "positive" | "warning"
   "limit-change": "warning",
 };
 
-export function ApprovalsPage() {
-  const [approvals, setApprovals] = useState<PendingApproval[]>(seedApprovals);
-  const [decisions, setDecisions] = useState<Record<string, "approved" | "rejected">>(
-    {},
-  );
+interface DecisionRecord {
+  id: string;
+  title: string;
+  decision: "approved" | "rejected";
+}
 
-  const decide = (id: string, decision: "approved" | "rejected") => {
-    setDecisions((prev) => ({ ...prev, [id]: decision }));
-    setApprovals((prev) => prev.filter((a) => a.id !== id));
+export function ApprovalsPage() {
+  const approvalsState = useAsync(() => approvalsApi.list(), []);
+  const [approvals, setApprovals] = useState<PendingApproval[]>([]);
+  const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const setPendingCount = useApprovalsStore((s) => s.setPendingCount);
+
+  useEffect(() => {
+    if (approvalsState.data) setApprovals(approvalsState.data);
+  }, [approvalsState.data]);
+
+  useEffect(() => {
+    if (approvalsState.data) setPendingCount(approvals.length);
+  }, [approvalsState.data, approvals.length, setPendingCount]);
+
+  const decide = async (
+    approval: PendingApproval,
+    decision: "approved" | "rejected",
+  ) => {
+    setPendingId(approval.id);
+    setError(null);
+    try {
+      await approvalsApi.decide(
+        approval.id,
+        decision === "approved" ? "authorise" : "reject",
+      );
+      setApprovals((prev) => prev.filter((item) => item.id !== approval.id));
+      setDecisions((prev) => [
+        { id: approval.id, title: approval.title, decision },
+        ...prev,
+      ]);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not record your decision",
+      );
+    } finally {
+      setPendingId(null);
+    }
   };
 
   return (
@@ -58,12 +97,25 @@ export function ApprovalsPage() {
         </p>
       </div>
 
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-negative-600"
+        >
+          {error}
+        </p>
+      )}
+
       <Card className="animate-fade-up">
         <CardHeader>
           <CardTitle>Awaiting authorisation</CardTitle>
           <Badge tone="warning">{approvals.length} pending</Badge>
         </CardHeader>
-        {approvals.length > 0 ? (
+        {approvalsState.loading ? (
+          <CardBody className="py-10 text-center text-sm text-ink-500">
+            Loading approvals…
+          </CardBody>
+        ) : approvals.length > 0 ? (
           <div className="divide-y divide-ink-100">
             {approvals.map((approval) => (
               <div
@@ -80,8 +132,7 @@ export function ApprovalsPage() {
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-ink-500">
-                    Captured by {approval.submittedBy} ·{" "}
-                    {formatDateTime(approval.submittedAt)}
+                    Captured {formatDateTime(approval.submittedAt)}
                   </p>
                   {approval.amount > 0 && (
                     <p className="mt-1 text-sm font-semibold tabular-nums text-ink-900">
@@ -92,14 +143,16 @@ export function ApprovalsPage() {
                 <div className="flex shrink-0 gap-2">
                   <Button
                     size="sm"
-                    onClick={() => decide(approval.id, "approved")}
+                    disabled={pendingId === approval.id}
+                    onClick={() => decide(approval, "approved")}
                   >
                     Authorise
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => decide(approval.id, "rejected")}
+                    disabled={pendingId === approval.id}
+                    onClick={() => decide(approval, "rejected")}
                   >
                     Reject
                   </Button>
@@ -132,28 +185,25 @@ export function ApprovalsPage() {
         )}
       </Card>
 
-      {Object.keys(decisions).length > 0 && (
+      {decisions.length > 0 && (
         <Card className="animate-fade-up">
           <CardHeader>
             <CardTitle>Your recent decisions</CardTitle>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
-            {Object.entries(decisions).map(([id, decision]) => {
-              const original = seedApprovals.find((a) => a.id === id);
-              return (
-                <div
-                  key={id}
-                  className="flex items-center justify-between border-b border-ink-100 pb-2 last:border-0"
+            {decisions.map((record) => (
+              <div
+                key={record.id}
+                className="flex items-center justify-between border-b border-ink-100 pb-2 last:border-0"
+              >
+                <span className="font-medium text-ink-700">{record.title}</span>
+                <Badge
+                  tone={record.decision === "approved" ? "positive" : "danger"}
                 >
-                  <span className="font-medium text-ink-700">
-                    {original?.title}
-                  </span>
-                  <Badge tone={decision === "approved" ? "positive" : "danger"}>
-                    {decision === "approved" ? "Authorised" : "Rejected"}
-                  </Badge>
-                </div>
-              );
-            })}
+                  {record.decision === "approved" ? "Authorised" : "Rejected"}
+                </Badge>
+              </div>
+            ))}
           </CardBody>
         </Card>
       )}

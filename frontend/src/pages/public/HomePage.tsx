@@ -1,16 +1,22 @@
 import { Link } from "react-router-dom";
+import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
+import { cn } from "@/lib/utils";
 import { Card, CardBody } from "@/components/ui/Card";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { Badge } from "@/components/ui/Badge";
-import { formatCurrency } from "@/lib/format";
 import { productCategories, products } from "@/data/mock";
+import woman from "@/assets/woman.png";
+import everydayCheque from "@/assets/everyday-cheque.png";
+import flexiSavings from "@/assets/flexi-savings.png";
+import aspireCredit from "@/assets/aspire-credit.png";
+import "@/styles/woman.css";
 
 const stats = [
   { label: "Clients served", value: "2.4M+" },
   { label: "Countries", value: "12" },
   { label: "Uptime (12 mo.)", value: "99.99%" },
-  { label: "Fraud recovered", value: "GH480M" },
+  { label: "Fraud recovered", value: "GH₵480M" },
 ];
 
 const trustSignals = [
@@ -34,6 +40,40 @@ const quickAccess = [
   { label: "Report Fraud", href: "/security" },
   { label: "Contact Us", href: "/support" },
 ];
+
+const productImages: Record<string, string> = {
+  "everyday-cheque": everydayCheque,
+  "flex-savings": flexiSavings,
+  "aspire-credit-card": aspireCredit,
+};
+
+const categoryIcons: Record<string, ReactNode> = {
+  accounts: (
+    <>
+      <path d="M20 12V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-2" />
+      <path d="M21 10h-6a2 2 0 0 0 0 4h6v-4Z" />
+    </>
+  ),
+  savings: (
+    <>
+      <path d="M3 17 9 11l4 4 8-8" />
+      <path d="M17 7h4v4" />
+    </>
+  ),
+  loans: (
+    <>
+      <path d="M19 5 5 19" />
+      <circle cx="7.5" cy="7.5" r="2.5" />
+      <circle cx="16.5" cy="16.5" r="2.5" />
+    </>
+  ),
+  cards: (
+    <>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20" />
+    </>
+  ),
+};
 
 export function HomePage() {
   const featured = products.filter((p) => p.featured);
@@ -79,39 +119,16 @@ export function HomePage() {
             </dl>
           </div>
 
-          <div className="relative">
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur">
-              <p className="text-sm font-medium text-white/70">Available balance</p>
-              <p className="mt-1 text-3xl font-bold">
-                {formatCurrency(48250.75)}
-              </p>
-              <div className="mt-6 space-y-3">
-                {[
-                  { label: "Everyday Cheque", value: 48250.75 },
-                  { label: "Flexi Savings", value: 138420.0 },
-                ].map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between rounded-lg bg-white/10 px-4 py-3"
-                  >
-                    <span className="text-sm text-white/80">{row.label}</span>
-                    <span className="text-sm font-semibold">
-                      {formatCurrency(row.value)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
-                {["Transfer", "Pay Bills", "Buy Airtime"].map((action) => (
-                  <div
-                    key={action}
-                    className="rounded-lg bg-white/10 px-2 py-3 font-medium"
-                  >
-                    {action}
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="relative flex items-center justify-center">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 rounded-[2.5rem] bg-white/10 blur-2xl"
+            />
+            <img
+              src={woman}
+              alt="A Legacy Trust Bank client banking with confidence"
+              className="woman-image relative w-full max-w-2xl left-40 top-20 scale-150 object-cover"
+            />
           </div>
         </Container>
       </section>
@@ -144,7 +161,7 @@ export function HomePage() {
                         className="h-5 w-5"
                         aria-hidden="true"
                       >
-                        <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" />
+                        {categoryIcons[category.id]}
                       </svg>
                     </span>
                     <h3 className="mt-4 text-base font-semibold">
@@ -183,29 +200,99 @@ export function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {featured.map((product) => (
-              <Card key={product.slug} className="flex h-full flex-col">
-                <CardBody className="flex flex-1 flex-col">
-                  <Badge tone="brand" className="self-start">
-                    {product.category}
-                  </Badge>
-                  <h3 className="mt-3 text-lg font-semibold">{product.name}</h3>
-                  <p className="mt-2 flex-1 text-sm text-ink-600">
-                    {product.tagline}
-                  </p>
-                  <p className="mt-4 text-sm font-semibold text-ink-900">
-                    {product.monthlyFee}
-                  </p>
-                  <Link
-                    to={`/products/${product.category}/${product.slug}`}
-                    className={buttonClass("outline", "sm", "mt-4 w-full")}
+          <div className="mt-10 space-y-6">
+            {featured.map((product, index) => {
+              const textOnRight = index % 2 === 1;
+              return (
+                <Card key={product.slug} className="relative overflow-hidden">
+                  <div
+                    className={cn(
+                      "flex items-stretch",
+                      textOnRight && "flex-row-reverse",
+                    )}
                   >
-                    Learn more
-                  </Link>
-                </CardBody>
-              </Card>
-            ))}
+                    <CardBody className="flex min-h-56 flex-1 flex-col justify-center">
+                      <Badge tone="brand" className="self-start">
+                        {product.category}
+                      </Badge>
+                      <h3 className="mt-3 text-2xl font-semibold">
+                        {product.name}
+                      </h3>
+                      <p className="mt-2 text-sm text-ink-600">
+                        {product.tagline}
+                      </p>
+                      <p className="mt-4 text-sm font-semibold text-ink-900">
+                        {product.monthlyFee}
+                      </p>
+                      <Link
+                        to={`/products/${product.category}/${product.slug}`}
+                        className={buttonClass("outline", "sm", "mt-5 self-start")}
+                      >
+                        Learn more
+                      </Link>
+                    </CardBody>
+
+                    <div
+                      className={cn(
+                        "flex w-1/2 shrink-0 items-center justify-center bg-ink-100 text-ink-400",
+                        textOnRight
+                          ? "[clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
+                          : "[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
+                      )}
+                    >
+                      {productImages[product.slug] ? (
+                        <img
+                          src={productImages[product.slug]}
+                          alt={product.name}
+                          className={cn(
+                            "h-80 w-full object-cover",
+                            product.slug === "aspire-credit-card" &&
+                              "brightness-120",
+                          )}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-8 w-8"
+                            aria-hidden="true"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg>
+                          <span className="text-xs font-medium">
+                            Sample image
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                      className="pointer-events-none absolute inset-0 z-10 h-full w-full text-white"
+                    >
+                      <line
+                        x1={textOnRight ? 41 : 59}
+                        y1="0"
+                        x2="50"
+                        y2="100"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </svg>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         </Container>
       </section>

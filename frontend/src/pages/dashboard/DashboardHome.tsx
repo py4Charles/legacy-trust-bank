@@ -4,39 +4,22 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { AccountCard } from "@/components/dashboard/AccountCard";
 import { TransactionRow } from "@/components/dashboard/TransactionRow";
-import { accounts, pendingApprovals, transactions } from "@/data/mock";
+import { accountsApi, approvalsApi, transactionsApi } from "@/api";
+import { useAsync } from "@/lib/useAsync";
 import { useAuthStore } from "@/store/auth";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
-const quickActions = [
-  {
-    label: "Send money",
-    caption: "Instant & scheduled",
-    to: "/dashboard/payments",
-    path: "M3 11l18-8-8 18-2-8-8-2Z",
-  },
-  {
-    label: "Pay bills",
-    caption: "Electricity, water & more",
-    to: "/dashboard/payments",
-    path: "M12 3 4 6v5c0 4.5 3.4 8.3 8 10 4.6-1.7 8-5.5 8-10V6l-8-3Z",
-  },
-  {
-    label: "Cards",
-    caption: "Freeze, limits & PIN",
-    to: "/dashboard/cards",
-    path: "M3 5h18v14H3zM3 10h18",
-  },
-  {
-    label: "Approvals",
-    caption: "2 waiting for review",
-    to: "/dashboard/approvals",
-    path: "M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M8.5 12l2.5 2.5 4.5-5",
-  },
-];
-
 export function DashboardHome() {
   const user = useAuthStore((s) => s.user);
+
+  const accountsState = useAsync(() => accountsApi.list(), []);
+  const transactionsState = useAsync(() => transactionsApi.list(50), []);
+  const approvalsState = useAsync(() => approvalsApi.list(), []);
+
+  const accounts = accountsState.data ?? [];
+  const transactions = transactionsState.data ?? [];
+  const pendingApprovals = approvalsState.data ?? [];
+
   const recent = [...transactions]
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
     .slice(0, 6);
@@ -46,6 +29,33 @@ export function DashboardHome() {
     .reduce((sum, account) => sum + account.balance, 0);
 
   const first = user?.name.split(" ")[0] ?? "there";
+
+  const quickActions = [
+    {
+      label: "Send money",
+      caption: "Instant & scheduled",
+      to: "/dashboard/payments",
+      path: "M3 11l18-8-8 18-2-8-8-2Z",
+    },
+    {
+      label: "Pay bills",
+      caption: "Electricity, water & more",
+      to: "/dashboard/payments",
+      path: "M12 3 4 6v5c0 4.5 3.4 8.3 8 10 4.6-1.7 8-5.5 8-10V6l-8-3Z",
+    },
+    {
+      label: "Cards",
+      caption: "Freeze, limits & PIN",
+      to: "/dashboard/cards",
+      path: "M3 5h18v14H3zM3 10h18",
+    },
+    {
+      label: "Approvals",
+      caption: `${pendingApprovals.length} waiting for review`,
+      to: "/dashboard/approvals",
+      path: "M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M8.5 12l2.5 2.5 4.5-5",
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -140,11 +150,17 @@ export function DashboardHome() {
             Manage accounts
           </Link>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
-          ))}
-        </div>
+        {accountsState.loading ? (
+          <p className="text-sm text-ink-500">Loading accounts…</p>
+        ) : accounts.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {accounts.map((account) => (
+              <AccountCard key={account.id} account={account} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-ink-500">No accounts yet.</p>
+        )}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
@@ -159,9 +175,17 @@ export function DashboardHome() {
             </Link>
           </CardHeader>
           <div className="divide-y divide-ink-100">
-            {recent.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} />
-            ))}
+            {recent.length > 0 ? (
+              recent.map((transaction) => (
+                <TransactionRow key={transaction.id} transaction={transaction} />
+              ))
+            ) : (
+              <p className="px-5 py-10 text-center text-sm text-ink-500">
+                {transactionsState.loading
+                  ? "Loading transactions…"
+                  : "No transactions yet."}
+              </p>
+            )}
           </div>
         </Card>
 
@@ -169,29 +193,37 @@ export function DashboardHome() {
           <Card className="animate-fade-up">
             <CardHeader>
               <CardTitle>Pending approvals</CardTitle>
-              <Badge tone="warning">{pendingApprovals.length} waiting</Badge>
+              <Badge tone="warning">
+                {pendingApprovals.length} waiting
+              </Badge>
             </CardHeader>
             <CardBody className="space-y-4">
-              {pendingApprovals.map((approval) => (
-                <div
-                  key={approval.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-ink-100 p-3.5 transition-colors hover:border-amber-200 hover:bg-amber-50/40"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink-900">
-                      {approval.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-ink-500">
-                      {approval.submittedBy} · {formatDateTime(approval.submittedAt)}
-                    </p>
+              {pendingApprovals.length > 0 ? (
+                pendingApprovals.map((approval) => (
+                  <div
+                    key={approval.id}
+                    className="flex items-start justify-between gap-3 rounded-xl border border-ink-100 p-3.5 transition-colors hover:border-amber-200 hover:bg-amber-50/40"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-ink-900">
+                        {approval.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-500">
+                        {formatDateTime(approval.submittedAt)}
+                      </p>
+                    </div>
+                    {approval.amount > 0 && (
+                      <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-900">
+                        {formatCurrency(approval.amount)}
+                      </span>
+                    )}
                   </div>
-                  {approval.amount > 0 && (
-                    <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-900">
-                      {formatCurrency(approval.amount)}
-                    </span>
-                  )}
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="py-4 text-center text-sm text-ink-500">
+                  Nothing awaiting authorisation.
+                </p>
+              )}
               <Link
                 to="/dashboard/approvals"
                 className={buttonClass("outline", "sm", "w-full")}
@@ -215,8 +247,10 @@ export function DashboardHome() {
                 <Badge tone="positive">Active</Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-ink-600">Last login</span>
-                <span className="font-medium text-ink-900">Today · 08:41</span>
+                <span className="text-ink-600">Account role</span>
+                <span className="font-medium capitalize text-ink-900">
+                  {user?.role ?? "—"}
+                </span>
               </div>
               <Link
                 to="/dashboard/settings"

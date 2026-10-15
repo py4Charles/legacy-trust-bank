@@ -81,12 +81,12 @@ export interface SessionUser {
 export interface AuthResult {
   requiresTwoFactor: boolean;
   challengeId?: string;
+  devCode?: string;
 }
 
 export interface PendingApproval {
   id: string;
   title: string;
-  submittedBy: string;
   submittedAt: string;
   amount: number;
   type: "payment" | "beneficiary" | "limit-change";
@@ -99,4 +99,18 @@ export interface NotificationItem {
   date: string;
   read: boolean;
   severity: "info" | "warning" | "critical";
+}
+
+export type BannerTone = "promotion" | "update" | "alert";
+
+export interface BannerLink {
+  label: string;
+  to: string;
+}
+
+export interface BannerMessage {
+  id: string;
+  tone: BannerTone;
+  message: string;
+  link?: BannerLink;
 }
