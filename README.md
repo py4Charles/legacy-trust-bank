@@ -6,7 +6,7 @@ The repository is a small monorepo with two independent projects:
 
 | Project | Stack | Purpose |
 | --- | --- | --- |
-| [`backend/`](backend) | Node · Express · TypeScript · Prisma · SQLite | REST API, business rules, persistence, tests |
+| [`backend/`](backend) | Node · Express · TypeScript · Prisma · PostgreSQL | REST API, business rules, persistence, tests |
 | [`frontend/`](frontend) | React 18 · Vite · TypeScript · Tailwind CSS v4 | Public marketing site + authenticated dashboard SPA |
 
 > **Status:** the backend is a fully working API (seeded and tested). The frontend is a polished UI that currently runs on **in-browser mock data** and is not yet wired to the API — see [Roadmap](#roadmap).
@@ -51,7 +51,7 @@ The repository is a small monorepo with two independent projects:
 
 ## Tech stack
 
-**Backend** — Express 4, TypeScript, Prisma 6 (SQLite), Zod, `jsonwebtoken`, `bcryptjs`, Helmet, CORS, Morgan, Vitest + Supertest.
+**Backend** — Express 4, TypeScript, Prisma 6 (PostgreSQL), Zod, `jsonwebtoken`, `bcryptjs`, Helmet, CORS, Morgan, Vitest + Supertest. Runs in Docker (see [`backend/Dockerfile`](backend/Dockerfile) and [`backend/docker-compose.yml`](backend/docker-compose.yml)).
 
 **Frontend** — React 18, Vite 6, TypeScript, Tailwind CSS v4, React Router 6, React Hook Form + Zod, Zustand.
 
@@ -63,8 +63,10 @@ The repository is a small monorepo with two independent projects:
 legacy-turst_bank/
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma        # data model (SQLite)
-│   │   └── dev.db               # local database (git-ignored)
+│   │   ├── schema.prisma        # data model (PostgreSQL)
+│   │   └── migrations/          # committed SQL migrations
+│   ├── Dockerfile               # multi-stage production image
+│   ├── docker-compose.yml       # local PostgreSQL (+ api) via Docker
 │   ├── src/
 │   │   ├── config/              # env validation + business limits
 │   │   ├── lib/                 # jwt, tokens, money, errors, audit, …
@@ -92,6 +94,7 @@ legacy-turst_bank/
 ### Prerequisites
 - Node.js 18+ (20+ recommended)
 - npm (or pnpm/yarn)
+- Docker Desktop (for the local PostgreSQL database — or bring your own PostgreSQL 16+)
 
 ### 1. Backend
 
@@ -102,12 +105,20 @@ npm install
 # Create your env file from the template, then edit secrets
 cp .env.example .env          # Windows: copy .env.example .env
 
-# Generate the Prisma client, create the SQLite DB and load demo data
-npm run prisma:generate
-npm run db:push
+# Start PostgreSQL in Docker (maps to host port 5433 — see docker-compose.yml)
+docker compose up -d db
+
+# Apply the committed migrations and load demo data
+npm run prisma:deploy
 npm run db:seed
 
 npm run dev                    # http://localhost:4000
+```
+
+Or run the API in Docker as well — the image applies migrations on startup:
+
+```bash
+docker compose up --build      # API on http://localhost:4001, PostgreSQL on 5433
 ```
 
 Health check: `GET http://localhost:4000/api/health`
@@ -121,10 +132,10 @@ Health check: `GET http://localhost:4000/api/health`
 | `npm start` | Run the compiled server |
 | `npm run typecheck` | Type-check without emitting |
 | `npm test` | Run the Vitest API suite |
-| `npm run db:push` | Sync Prisma schema to SQLite |
 | `npm run db:seed` | Load demo data |
 | `npm run db:reset` | Force-reset the DB and re-seed |
-| `npm run prisma:migrate` | Create/apply migrations |
+| `npm run prisma:migrate` | Create/apply migrations in development |
+| `npm run prisma:deploy` | Apply committed migrations (dev/prod) |
 
 ### 2. Frontend
 
@@ -172,7 +183,7 @@ Copy `backend/.env.example` → `backend/.env`. The API validates env at boot an
 
 | Variable | Default | Notes |
 | --- | --- | --- |
-| `DATABASE_URL` | `file:./dev.db` | SQLite file for local dev |
+| `DATABASE_URL` | `postgresql://ltb:ltb@localhost:5433/ltb?schema=public` | PostgreSQL connection string (matches the Docker Postgres in local dev) |
 | `PORT` | `4000` | API port |
 | `NODE_ENV` | `development` | `development` \| `test` \| `production` |
 | `CORS_ORIGIN` | `http://localhost:5173` | Comma-separated allow-list |
@@ -181,6 +192,34 @@ Copy `backend/.env.example` → `backend/.env`. The API validates env at boot an
 | `ACCESS_TOKEN_TTL` | `15m` | Access-token lifetime |
 | `REFRESH_TOKEN_TTL` | `30d` | Refresh-token lifetime |
 | `TWO_FACTOR_ENABLED` | `true` | Global 2FA toggle |
+
+---
+
+## Deploying
+
+The backend builds to a Docker image (`backend/Dockerfile`) that runs `prisma migrate deploy` on startup, then serves the API on `PORT`.
+
+1. Build the image:
+
+   ```bash
+   cd backend
+   docker build -t legacy-trust-bank-api .
+   ```
+
+2. Provision a **managed PostgreSQL** database and set the required environment variables (`DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`) in your host's dashboard or secret manager — **do not ship `.env`**. Keep `?sslmode=require` on the production connection string.
+
+3. Run the container:
+
+   ```bash
+   docker run -p 4000:4000 \
+     -e DATABASE_URL="postgresql://…?sslmode=require" \
+     -e JWT_ACCESS_SECRET="…" -e JWT_REFRESH_SECRET="…" -e CORS_ORIGIN="https://app.example.com" \
+     legacy-trust-bank-api
+   ```
+
+Migrations run automatically before the server starts. For zero-downtime or multi-instance setups, run the image once as a release/migration job (`prisma migrate deploy`) and use `node dist/index.js` as the web command.
+
+Platforms that build from a Dockerfile (Render, Railway, Fly) can point straight at `backend/Dockerfile`.
 
 ---
 
@@ -246,7 +285,7 @@ cd backend
 npm test
 ```
 
-Vitest + Supertest run against an isolated `prisma/test.db`. Coverage includes: health, auth (bad OTP, bad credentials, `/me`, unauthenticated access), accounts, payment idempotency, dual authorisation + separation of duties, card freeze/unfreeze, admin access control, OTP attempt capping, per-user idempotency scoping, and suspended-user rejection.
+Vitest + Supertest run against an isolated PostgreSQL database (`ltb_test`, created by `docker/initdb/01-create-test-db.sql`). The suite resets it with the committed migrations (`prisma migrate reset`) and seeds it before running. Coverage includes: health, auth (bad OTP, bad credentials, `/me`, unauthenticated access), accounts, payment idempotency, dual authorisation + separation of duties, card freeze/unfreeze, admin access control, OTP attempt capping, per-user idempotency scoping, and suspended-user rejection.
 
 ---
 
@@ -257,7 +296,7 @@ Vitest + Supertest run against an isolated `prisma/test.db`. Coverage includes: 
 - Helmet sets secure HTTP headers; CORS is restricted to a configurable allow-list.
 - All sensitive actions are written to an append-only `AuditLog`.
 - Balance changes use conditional `updateMany` guards to prevent overdrafts under concurrency.
-- **Not for production:** SQLite storage, `devCode`/console OTP logging outside production, and no general-purpose rate limiter yet.
+- **Not for production yet:** `devCode`/console OTP logging outside production and no general-purpose rate limiter. (Persistence is PostgreSQL via Prisma.)
 
 ---
 
@@ -267,8 +306,10 @@ Vitest + Supertest run against an isolated `prisma/test.db`. Coverage includes: 
 - [ ] Admin console UI
 - [ ] General request rate limiting
 - [ ] Email/SMS delivery for OTP and alerts
-- [ ] PostgreSQL deployment (schema is written to make this a datasource change)
-- [ ] CI pipeline and Docker setup
+- [x] PostgreSQL migration (Prisma schema, committed migrations, local Docker Postgres)
+- [x] Docker setup (multi-stage `Dockerfile` + `docker-compose.yml` for API and Postgres)
+- [ ] CI pipeline
+- [ ] Managed PostgreSQL deployment + porting existing SQLite `dev.db` data
 
 ### Known issues
 - `frontend` `npm run lint` fails because ESLint is not installed (the script exists but `eslint` isn't a dependency yet).

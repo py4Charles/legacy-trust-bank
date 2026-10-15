@@ -10,7 +10,7 @@ export default defineConfig({
       NODE_ENV: "test",
       DATABASE_URL:
         process.env.TEST_DATABASE_URL ??
-        "postgresql://ltb:ltb@localhost:5432/ltb_test?schema=public",
+        "postgresql://ltb:ltb@localhost:5433/ltb_test?schema=public",
       JWT_ACCESS_SECRET: "test-access-secret",
       JWT_REFRESH_SECRET: "test-refresh-secret",
       ACCESS_TOKEN_TTL: "15m",

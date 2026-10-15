@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ltb
       POSTGRES_DB: ltb
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ltb-postgres:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
@@ -36,7 +36,7 @@ services:
       REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-30d}
       TWO_FACTOR_ENABLED: ${TWO_FACTOR_ENABLED:-true}
     ports:
-      - "4000:4000"
+      - "4001:4000"
 
 volumes:
   ltb-postgres:
