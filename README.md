@@ -197,7 +197,9 @@ Copy `backend/.env.example` → `backend/.env`. The API validates env at boot an
 
 ## Deploying
 
-The backend builds to a Docker image (`backend/Dockerfile`) that runs `prisma migrate deploy` on startup, then serves the API on `PORT`.
+A [`render.yaml`](render.yaml) Blueprint is included: it provisions a managed PostgreSQL database, wires its connection string into the API service as `DATABASE_URL`, generates the JWT secrets, and builds the API from `backend/Dockerfile` (which runs `prisma migrate deploy` on startup). Merge it to your default branch and deploy via **Render → New → Blueprint**.
+
+To deploy elsewhere, the backend builds to a Docker image (`backend/Dockerfile`) that runs `prisma migrate deploy` on startup, then serves the API on `PORT`.
 
 1. Build the image:
 
