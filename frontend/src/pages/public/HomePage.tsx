@@ -83,7 +83,7 @@ export function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-600 text-white">
         <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-500/30 blur-3xl" />
         <div className="absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-accent-500/20 blur-3xl" />
-        <Container className="relative grid gap-12 py-20 lg:grid-cols-2 lg:items-center lg:py-28">
+        <Container className="relative grid gap-10 py-16 sm:gap-12 sm:py-20 lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-28">
           <div>
             <Badge tone="light">
               Now with instant account opening
@@ -92,8 +92,10 @@ export function HomePage() {
               Banking built on trust, designed for real life.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-white/80">
-              Manage your money, grow your savings and move it safely. <br />
-              All from one secure app backed by decades of <br />
+              Manage your money, grow your savings and move it safely.{" "}
+              <br className="hidden sm:inline" />
+              All from one secure app backed by decades of{" "}
+              <br className="hidden sm:inline" />
               banking expertise.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -127,7 +129,7 @@ export function HomePage() {
             <img
               src={woman}
               alt="A Legacy Trust Bank client banking with confidence"
-              className="woman-image relative w-full max-w-2xl left-40 top-20 scale-150 object-cover"
+              className="woman-image relative w-full max-w-xs object-cover left-8 top-8 scale-110 sm:max-w-md lg:max-w-2xl lg:left-40 lg:top-20 lg:scale-150"
             />
           </div>
         </Container>
@@ -207,11 +209,11 @@ export function HomePage() {
                 <Card key={product.slug} className="relative overflow-hidden">
                   <div
                     className={cn(
-                      "flex items-stretch",
-                      textOnRight && "flex-row-reverse",
+                      "flex flex-col items-stretch sm:flex-row",
+                      textOnRight && "sm:flex-row-reverse",
                     )}
                   >
-                    <CardBody className="flex min-h-56 flex-1 flex-col justify-center">
+                    <CardBody className="flex flex-1 flex-col justify-center sm:min-h-56">
                       <Badge tone="brand" className="self-start">
                         {product.category}
                       </Badge>
@@ -234,10 +236,10 @@ export function HomePage() {
 
                     <div
                       className={cn(
-                        "flex w-1/2 shrink-0 items-center justify-center bg-ink-100 text-ink-400",
+                        "flex w-full shrink-0 items-center justify-center overflow-hidden bg-ink-100 text-ink-400 sm:w-1/2",
                         textOnRight
-                          ? "[clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
-                          : "[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
+                          ? "sm:[clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
+                          : "sm:[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]",
                       )}
                     >
                       {productImages[product.slug] ? (
@@ -245,7 +247,7 @@ export function HomePage() {
                           src={productImages[product.slug]}
                           alt={product.name}
                           className={cn(
-                            "h-80 w-full object-cover",
+                            "h-44 w-full object-cover sm:h-80",
                             product.slug === "aspire-credit-card" &&
                               "brightness-120",
                           )}
@@ -277,7 +279,7 @@ export function HomePage() {
                       aria-hidden="true"
                       viewBox="0 0 100 100"
                       preserveAspectRatio="none"
-                      className="pointer-events-none absolute inset-0 z-10 h-full w-full text-white"
+                      className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full text-white sm:block"
                     >
                       <line
                         x1={textOnRight ? 41 : 59}
