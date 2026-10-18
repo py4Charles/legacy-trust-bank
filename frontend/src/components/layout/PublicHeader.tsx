@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Container } from "@/components/ui/Container";
@@ -8,12 +8,19 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Home", to: "/" },
-  { label: "Accounts", to: "/products/accounts" },
-  { label: "Savings", to: "/products/savings" },
-  { label: "Loans", to: "/products/loans" },
-  { label: "Cards", to: "/products/cards" },
+  {
+    label: "Products",
+    to: "/products/accounts",
+    children: [
+      { label: "Accounts", to: "/products/accounts" },
+      { label: "Savings", to: "/products/savings" },
+      { label: "Loans", to: "/products/loans" },
+      { label: "Cards", to: "/products/cards" },
+    ],
+  },
   { label: "Support", to: "/support" },
   { label: "Security", to: "/security" },
+  { label: "About Us", to: "/about" },
 ];
 
 export function PublicHeader() {
@@ -34,11 +41,46 @@ export function PublicHeader() {
         <Logo />
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={navLinkClass}>
-              {item.label}
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            if ("children" in item) {
+              return (
+                <div key={item.label} className="relative group">
+                  <NavLink
+                    to={item.to}
+                    className={navLinkClass}
+                    aria-haspopup="true"
+                  >
+                    {item.label}
+                  </NavLink>
+                  <div className="absolute left-0 top-full z-50 mt-2 hidden w-56 rounded-xl border border-ink-100 bg-white shadow-card group-hover:block">
+                    <div className="p-2">
+                      {item.children?.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          className={({ isActive }) =>
+                            cn(
+                              "block rounded-lg px-3 py-2 text-sm transition-colors",
+                              isActive
+                                ? "bg-brand-50 text-brand-700"
+                                : "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
+                            )
+                          }
+                        >
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <NavLink key={item.to} to={item.to} className={navLinkClass}>
+                {item.label}
+              </NavLink>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
