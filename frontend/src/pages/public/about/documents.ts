@@ -88,7 +88,7 @@ export function loadDocument(id: DocumentId): Promise<PDFDocumentProxy> {
       isEvalSupported: false,
       useSystemFonts: true,
       useWasm: false,
-    }).promise;
+    } as DocumentInitParameters).promise;
     documentCache.set(id, promise);
     promise.catch(() => documentCache.delete(id));
   }

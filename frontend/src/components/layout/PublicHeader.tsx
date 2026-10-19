@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Container } from "@/components/ui/Container";

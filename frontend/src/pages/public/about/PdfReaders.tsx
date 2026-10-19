@@ -128,9 +128,9 @@ function PdfStage({
           canvas,
           canvasContext: canvas.getContext("2d")!,
           viewport,
-          transform: ratio === 1 ? null : [ratio, 0, 0, ratio, 0, 0],
+          transform: ratio === 1 ? undefined : [ratio, 0, 0, ratio, 0, 0],
           background: "rgb(255, 255, 255)",
-        });
+        } as RenderParameters);
         renderTaskRef.current = task;
         await task.promise;
         if (cancelled) return;
@@ -198,7 +198,7 @@ function PdfStage({
       tabIndex={0}
       role="region"
       aria-label={stageLabel}
-      ref={stageRef}
+      ref={stageRef as React.RefObject<HTMLDivElement>}
       onKeyDown={(event) => {
         if (event.key === "ArrowLeft") {
           event.preventDefault();
@@ -213,7 +213,7 @@ function PdfStage({
         {!hasError && <span className="loading-dot" />}
         {hasError ? ERROR_MESSAGE : "Loading original PDF…"}
       </div>
-      <canvas aria-hidden="true" ref={canvasRef} />
+      <canvas aria-hidden="true" ref={canvasRef as React.RefObject<HTMLCanvasElement>} />
       <div className="pdf-accessible-text sr-only">{accessibleText}</div>
     </div>
   );
