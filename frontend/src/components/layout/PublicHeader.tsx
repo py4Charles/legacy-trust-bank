@@ -134,21 +134,62 @@ export function PublicHeader() {
       {menuOpen && (
         <div className="border-t border-ink-100 bg-white pb-4 shadow-card lg:hidden">
           <Container className="flex flex-col pt-2">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium",
-                    isActive ? "text-brand-700" : "text-ink-600 hover:text-ink-900",
-                  )
-                }
-                onClick={() => setMenuOpen(false)}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {navItems.map((item) => {
+              if ("children" in item) {
+                return (
+                  <div key={item.label} className="flex flex-col">
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        cn(
+                          "rounded-lg px-3 py-2.5 text-sm font-medium",
+                          isActive
+                            ? "text-brand-700"
+                            : "text-ink-600 hover:text-ink-900",
+                        )
+                      }
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </NavLink>
+                    <div className="ml-3 flex flex-col gap-1 border-l border-ink-100 pl-2">
+                      {item.children?.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          className={({ isActive }) =>
+                            cn(
+                              "rounded-lg px-3 py-2 text-sm",
+                              isActive
+                                ? "text-brand-700"
+                                : "text-ink-600 hover:text-ink-900",
+                            )
+                          }
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "rounded-lg px-3 py-2.5 text-sm font-medium",
+                      isActive ? "text-brand-700" : "text-ink-600 hover:text-ink-900",
+                    )
+                  }
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
             <div className="mt-3 flex flex-col gap-2 border-t border-ink-100 pt-3">
               {user ? (
                 <Link
