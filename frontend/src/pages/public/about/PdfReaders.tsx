@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { RenderParameters } from "pdfjs-dist/types/src/display/api";
 import { cn } from "@/lib/utils";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import {

@@ -1,5 +1,6 @@
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
+import type { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import newsletterOneUrl from "@/docs/newsletter 1.pdf?url";
 import newsletterTwoUrl from "@/docs/newsletter 2.pdf?url";
 import newsletterThreeUrl from "@/docs/NEWSLWEETER 3.pdf?url";

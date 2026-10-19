@@ -63,17 +63,17 @@ export function LegacyInsights({
 
         <div className="mt-10 space-y-10">
           <article id="secure-touch" className="scroll-mt-24">
-            <Card>
-              <div className="grid items-stretch lg:grid-cols-2">
+            <Card className="overflow-hidden">
+              <div className="grid items-stretch overflow-hidden lg:grid-cols-2">
                 <PhotoSlot
                   ariaLabel="Photo placeholder: customer using biometric mobile banking"
                   label="Mobile banking photograph"
                   sub="Biometric login / customer experience"
                   note="Image to be added"
                   index="01"
-                  className="min-h-64 rounded-none border-0 border-b border-dashed border-ink-200 lg:border-b-0 lg:border-r"
+                  className="min-h-64 rounded-none border-0"
                 />
-                <CardBody className="flex flex-col justify-center">
+                <CardBody className="flex flex-col justify-center border-t border-dashed border-ink-200 lg:border-l lg:border-t-0">
                   <div className="flex items-center justify-between gap-4">
                     <Badge tone="brand">Newsletter 01</Badge>
                     <time
@@ -148,9 +148,9 @@ export function LegacyInsights({
           </article>
 
           <article id="tradition-innovation" className="scroll-mt-24">
-            <Card>
-              <div className="grid items-stretch lg:grid-cols-2">
-                <CardBody className="order-2 flex flex-col justify-center lg:order-1">
+            <Card className="overflow-hidden">
+              <div className="grid items-stretch overflow-hidden lg:grid-cols-2">
+                <CardBody className="order-2 flex flex-col justify-center border-t border-dashed border-ink-200 lg:order-1 lg:border-r lg:border-t-0">
                   <div className="flex items-center justify-between gap-4">
                     <Badge tone="brand">Newsletter 02</Badge>
                     <time
@@ -226,7 +226,7 @@ export function LegacyInsights({
                   sub="Team collaboration / fintech innovation"
                   note="Image to be added"
                   index="02"
-                  className="order-1 min-h-64 rounded-none border-0 border-b border-dashed border-ink-200 lg:order-2 lg:border-b-0 lg:border-l"
+                  className="order-1 min-h-64 rounded-none border-0 lg:order-2"
                 />
               </div>
             </Card>

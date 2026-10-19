@@ -3,7 +3,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { downloadDocument, type DocumentId } from "./documents";
-import { IconDoc, IconDownload, IconExpand } from "./icons";
+import { IconArrow, IconDoc, IconDownload, IconExpand } from "./icons";
 import { PhotoSlot } from "./PhotoSlot";
 import { PdfReader } from "./PdfReaders";
 
@@ -140,7 +140,7 @@ export function PressRoom({
               className={buttonClass("outline", "sm", "sm:ml-auto")}
             >
               Contact the media team
-              <IconDownload className="h-4 w-4 rotate-180" />
+              <IconArrow className="h-4 w-4" />
             </a>
           </CardBody>
         </Card>
