@@ -1,18 +1,7 @@
+import { cn } from "@/lib/utils";
 import { IconImage, IconPerson } from "./icons";
 
 interface PhotoSlotProps {
-  /** Stable identifier kept from the design handoff for easy image replacement. */
-  photo:
-    | "head-office"
-    | "founder"
-    | "cofounder-one"
-    | "cofounder-two"
-    | "managing-director"
-    | "biometric-banking"
-    | "fintech-partnership"
-    | "media-contact";
-  /** Modifier class controlling size, background and crop treatment. */
-  variant: string;
   ariaLabel: string;
   label?: string;
   sub?: string;
@@ -21,16 +10,11 @@ interface PhotoSlotProps {
   index?: string;
   icon?: "image" | "person";
   className?: string;
-  /** Decorative registration corners and office line overlay (hero image). */
-  crop?: boolean;
-  officeLines?: boolean;
   /** Small portraits skip the centred label block. */
   compact?: boolean;
 }
 
 export function PhotoSlot({
-  photo,
-  variant,
   ariaLabel,
   label,
   sub,
@@ -38,38 +22,42 @@ export function PhotoSlot({
   index,
   icon = "image",
   className,
-  crop = false,
-  officeLines = false,
   compact = false,
 }: PhotoSlotProps) {
   const PlaceholderIcon = icon === "person" ? IconPerson : IconImage;
-  const iconClass = icon === "person" ? "portrait-icon" : "placeholder-icon";
 
   return (
     <div
-      className={["photo-slot", variant, className].filter(Boolean).join(" ")}
       role="img"
       aria-label={ariaLabel}
-      data-photo={photo}
-    >
-      {crop && (
-        <>
-          <span className="slot-corner top-left" />
-          <span className="slot-corner bottom-right" />
-        </>
+      className={cn(
+        "relative flex items-center justify-center overflow-hidden rounded-2xl border border-dashed border-ink-200 bg-ink-100 text-ink-400",
+        className,
       )}
+    >
       {compact ? (
-        <PlaceholderIcon className={iconClass} />
+        <PlaceholderIcon className="h-10 w-10 opacity-60" />
       ) : (
-        <div className="slot-center">
-          <PlaceholderIcon className={iconClass} />
-          {label && <span>{label}</span>}
-          {sub && <small>{sub}</small>}
+        <div className="flex flex-col items-center px-6 py-8 text-center">
+          <PlaceholderIcon className="mb-3 h-12 w-12 opacity-60" />
+          {label && (
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+              {label}
+            </span>
+          )}
+          {sub && <small className="mt-1.5 text-xs text-ink-400">{sub}</small>}
         </div>
       )}
-      {note && <span className="slot-note">{note}</span>}
-      {index && <span className="photo-index">{index}</span>}
-      {officeLines && <span className="office-lines" aria-hidden="true" />}
+      {index && (
+        <span className="pointer-events-none absolute bottom-3 left-4 font-display text-5xl font-bold leading-none text-brand-600/20">
+          {index}
+        </span>
+      )}
+      {note && (
+        <span className="absolute bottom-3 right-4 text-[10px] font-medium uppercase tracking-wide text-ink-400">
+          {note}
+        </span>
+      )}
     </div>
   );
 }

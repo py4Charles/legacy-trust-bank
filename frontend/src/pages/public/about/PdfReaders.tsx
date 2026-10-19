@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { buttonClass } from "@/components/ui/buttonStyles";
 import {
   downloadDocument,
   getDocumentSource,
@@ -26,6 +28,9 @@ interface ReaderState {
 const ERROR_MESSAGE =
   "The PDF preview could not load in this browser. Use Download PDF to open the unchanged original file in a PDF reader.";
 
+const iconButton =
+  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-40";
+
 /**
  * Renders an original PDF page onto a canvas, fitting the page inside the
  * stage by default and re-rendering (debounced) on resize.
@@ -39,6 +44,7 @@ function PdfStage({
   canvasRef,
   onPageStep,
   onState,
+  className,
 }: {
   docId: DocumentId;
   pageNumber: number;
@@ -48,6 +54,7 @@ function PdfStage({
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onPageStep: (delta: number) => void;
   onState: (state: ReaderState) => void;
+  className?: string;
 }) {
   const [ready, setReady] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -188,13 +195,10 @@ function PdfStage({
 
   return (
     <div
-      className={[
-        "pdf-stage",
-        ready ? "ready" : "",
-        hasError ? "has-error" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={cn(
+        "relative flex items-start justify-start overflow-auto overscroll-contain bg-ink-100 p-4 focus-visible:outline-brand-600",
+        className,
+      )}
       tabIndex={0}
       role="region"
       aria-label={stageLabel}
@@ -209,12 +213,30 @@ function PdfStage({
         }
       }}
     >
-      <div className="pdf-loading">
-        {!hasError && <span className="loading-dot" />}
-        {hasError ? ERROR_MESSAGE : "Loading original PDF…"}
-      </div>
-      <canvas aria-hidden="true" ref={canvasRef as React.RefObject<HTMLCanvasElement>} />
-      <div className="pdf-accessible-text sr-only">{accessibleText}</div>
+      {!ready && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+          <div
+            className={cn(
+              "flex max-w-xs items-center gap-2.5 text-center text-sm text-ink-500",
+              hasError && "text-negative-600",
+            )}
+          >
+            {!hasError && (
+              <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-brand-500" />
+            )}
+            {hasError ? ERROR_MESSAGE : "Loading original PDF…"}
+          </div>
+        </div>
+      )}
+      <canvas
+        aria-hidden="true"
+        ref={canvasRef as React.RefObject<HTMLCanvasElement>}
+        className={cn(
+          "mx-auto shrink-0 self-start bg-white shadow-md",
+          ready ? "block" : "hidden",
+        )}
+      />
+      <div className="sr-only">{accessibleText}</div>
     </div>
   );
 }
@@ -316,94 +338,106 @@ export function PdfReader({
   return (
     <div
       ref={hostRef}
-      className={[
-        "pdf-viewer",
-        variant === "modal" ? "dialog-viewer" : "",
-        busy ? "is-loading" : "",
+      className={cn(
+        "min-w-0",
+        variant === "modal"
+          ? "flex min-h-0 flex-1 flex-col bg-ink-100"
+          : "overflow-hidden border-y border-ink-200 bg-ink-100",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       data-viewer-doc={docId}
       data-rendered-page={
         state.status === "ready" ? String(state.pageNumber) : undefined
       }
     >
-      <div className="pdf-toolbar">
+      <div className="flex min-h-11 items-center justify-between gap-2.5 border-b border-ink-200 bg-white px-3.5">
         {variant === "inline" ? (
           <>
-            {showPreviewLabel && <span className="pdf-label">PDF PREVIEW</span>}
-            <div className="pdf-pagination">
+            {showPreviewLabel && (
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-400">
+                PDF preview
+              </span>
+            )}
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="icon-button"
+                className={iconButton}
                 aria-label={prevLabel}
                 disabled={prevDisabled}
                 onClick={() => changePage(-1)}
               >
-                <IconChevronLeft className="icon" />
+                <IconChevronLeft className="h-4 w-4" />
               </button>
-              <span className="page-status" aria-live="polite">
+              <span
+                className="min-w-16 text-center text-xs text-ink-600"
+                aria-live="polite"
+              >
                 {statusText}
               </span>
               <button
                 type="button"
-                className="icon-button"
+                className={iconButton}
                 aria-label={nextLabel}
                 disabled={nextDisabled}
                 onClick={() => changePage(1)}
               >
-                <IconChevronRight className="icon" />
+                <IconChevronRight className="h-4 w-4" />
               </button>
             </div>
           </>
         ) : (
           <>
-            <div className="pdf-pagination">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="icon-button"
+                className={iconButton}
                 aria-label={prevLabel}
                 disabled={prevDisabled}
                 onClick={() => changePage(-1)}
               >
-                <IconChevronLeft className="icon" />
+                <IconChevronLeft className="h-4 w-4" />
               </button>
-              <span className="page-status" aria-live="polite">
+              <span
+                className="min-w-16 text-center text-xs text-ink-600"
+                aria-live="polite"
+              >
                 {statusText}
               </span>
               <button
                 type="button"
-                className="icon-button"
+                className={iconButton}
                 aria-label={nextLabel}
                 disabled={nextDisabled}
                 onClick={() => changePage(1)}
               >
-                <IconChevronRight className="icon" />
+                <IconChevronRight className="h-4 w-4" />
               </button>
             </div>
             {showZoom && (
-              <div className="pdf-zoom">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
-                  className="icon-button"
+                  className={iconButton}
                   aria-label="Zoom out"
                   disabled={busy || state.zoom <= 1}
                   onClick={() => changeZoom(-0.25)}
                 >
-                  <IconMinus className="icon" />
+                  <IconMinus className="h-4 w-4" />
                 </button>
-                <span className="zoom-status" aria-live="polite">
+                <span
+                  className="min-w-10 text-center text-xs text-ink-600"
+                  aria-live="polite"
+                >
                   {zoomText}
                 </span>
                 <button
                   type="button"
-                  className="icon-button"
+                  className={iconButton}
                   aria-label="Zoom in"
                   disabled={busy || state.zoom >= 3}
                   onClick={() => changeZoom(0.25)}
                 >
-                  <IconPlus className="icon" />
+                  <IconPlus className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -411,26 +445,18 @@ export function PdfReader({
         )}
       </div>
 
-      {near ? (
-        <PdfStage
-          docId={docId}
-          pageNumber={state.pageNumber}
-          totalPages={state.totalPages}
-          zoom={state.zoom}
-          stageRef={stageRef}
-          canvasRef={canvasRef}
-          onPageStep={changePage}
-          onState={handleState}
-        />
-      ) : (
-        <div className="pdf-stage">
-          <div className="pdf-loading">
-            <span className="loading-dot" />
-            Loading original PDF…
-          </div>
-        </div>
-      )}
-      <div className="pdf-feedback sr-only" role="status">
+      <PdfStage
+        docId={docId}
+        pageNumber={state.pageNumber}
+        totalPages={state.totalPages}
+        zoom={state.zoom}
+        stageRef={stageRef}
+        canvasRef={canvasRef}
+        onPageStep={changePage}
+        onState={handleState}
+        className={variant === "modal" ? "min-h-0 flex-1" : "h-[538px]"}
+      />
+      <div className="sr-only" role="status">
         {state.status === "error"
           ? "PDF preview unavailable. The original download is still available."
           : state.status === "ready" && totalPages !== null
@@ -461,9 +487,10 @@ export function ExpandedPdfReader({
     triggerRef.current = document.activeElement as HTMLElement | null;
     const dialog = dialogRef.current;
     if (dialog && !dialog.open) dialog.showModal();
-    document.body.classList.add("about-modal-open");
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.classList.remove("about-modal-open");
+      document.body.style.overflow = previousOverflow;
       if (dialog?.open) dialog.close();
       triggerRef.current?.focus?.({ preventScroll: true });
     };
@@ -487,29 +514,37 @@ export function ExpandedPdfReader({
           dialogRef.current?.close();
         }
       }}
+      className="m-auto h-[calc(100dvh-3.5rem)] w-[min(1180px,calc(100vw-2rem))] max-h-[1100px] max-w-none overflow-hidden rounded-2xl border border-ink-200 bg-white p-0 text-ink-900 shadow-2xl backdrop:bg-ink-950/70 backdrop:backdrop-blur-sm open:flex open:flex-col"
     >
-      <div className="dialog-header">
-        <div>
-          <span className="mini-label">ORIGINAL DOCUMENT</span>
-          <h2 id="dialog-title">{source.title}</h2>
-          <span id="dialog-filename">{source.filename}</span>
+      <div className="flex shrink-0 items-center justify-between gap-5 border-b border-ink-200 bg-white px-6 py-4">
+        <div className="min-w-0">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-600">
+            Original document
+          </span>
+          <h2
+            id="dialog-title"
+            className="mt-1 truncate text-lg font-semibold text-ink-900"
+          >
+            {source.title}
+          </h2>
+          <span className="text-xs text-ink-500">{source.filename}</span>
         </div>
-        <div className="dialog-header-actions">
+        <div className="flex shrink-0 items-center gap-3">
           <button
             type="button"
-            className="button button-outline"
+            className={buttonClass("outline", "sm")}
             onClick={() => void downloadDocument(docId)}
           >
-            <IconDownload className="icon" />
-            <span>Download PDF</span>
+            <IconDownload className="h-4 w-4" />
+            <span className="hidden sm:inline">Download PDF</span>
           </button>
           <button
             type="button"
-            className="icon-button close-dialog"
+            className={iconButton}
             aria-label="Close PDF reader"
             onClick={() => dialogRef.current?.close()}
           >
-            <IconClose className="icon" />
+            <IconClose className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -523,7 +558,7 @@ export function ExpandedPdfReader({
         nextLabel="Next PDF page"
       />
 
-      <div className="reader-footer">
+      <div className="flex shrink-0 flex-wrap justify-between gap-5 border-t border-ink-200 px-6 py-2.5 text-[11px] text-ink-500">
         <span>Original PDF · Use the arrows to browse every page.</span>
         <span>Some source documents include blank final pages.</span>
       </div>

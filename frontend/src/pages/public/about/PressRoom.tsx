@@ -1,7 +1,36 @@
+import { Container } from "@/components/ui/Container";
+import { Card, CardBody } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { buttonClass } from "@/components/ui/buttonStyles";
 import { downloadDocument, type DocumentId } from "./documents";
-import { IconArrow, IconDoc, IconDownload, IconExpand } from "./icons";
+import { IconDoc, IconDownload, IconExpand } from "./icons";
 import { PhotoSlot } from "./PhotoSlot";
 import { PdfReader } from "./PdfReaders";
+
+const pressReleases = [
+  {
+    id: "press-1" as const,
+    anchor: "press-flood-relief",
+    tone: "COMMUNITY SUPPORT",
+    dateTime: "2026-10-09",
+    dateLabel: "09 October 2026",
+    title: "Legacy Trust Bank supports flood victims",
+    body: "Relief and recovery support for affected customers and communities in Accra and parts of the Central Region.",
+    file: "press release 1.pdf",
+    size: "3 pages · 181 KB",
+  },
+  {
+    id: "press-2" as const,
+    anchor: "press-high-yield",
+    tone: "PRODUCT ANNOUNCEMENT",
+    dateTime: "2026-09-10",
+    dateLabel: "10 September 2026",
+    title: "Introducing the High-Yield Savings Account",
+    body: "An announcement of the account’s savings features, access options and mobile account-opening process.",
+    file: "press release 2.pdf",
+    size: "3 pages · 192 KB",
+  },
+];
 
 export function PressRoom({
   onOpenDoc,
@@ -9,174 +38,119 @@ export function PressRoom({
   onOpenDoc: (id: DocumentId) => void;
 }) {
   return (
-    <section
-      id="press-room"
-      className="press-section section"
-      aria-labelledby="press-title"
-    >
-      <div className="about-container">
-        <div className="section-heading heading-inline">
-          <div>
-            <p className="eyebrow">
-              <span className="section-number">04</span>PRESS ROOM
-            </p>
-            <h2 id="press-title">
-              News, in
-              <br />
-              <em>our own words.</em>
+    <section id="press-room" className="scroll-mt-24 py-16 sm:py-20">
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-xl">
+            <Badge tone="brand">04 · Press room</Badge>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink-900">
+              News, in our own words.
             </h2>
           </div>
-          <p className="section-intro">
+          <p className="max-w-sm text-sm text-ink-600">
             Read our official announcements in their original format. Each
             release has its own PDF viewer, full-screen reading and download.
           </p>
         </div>
 
-        <div className="press-grid">
-          <article
-            id="press-flood-relief"
-            className="press-card"
-            aria-labelledby="flood-title"
-            data-source="press-1"
-          >
-            <div className="press-card-header">
-              <div className="article-meta">
-                <span className="mini-label">COMMUNITY SUPPORT</span>
-                <time dateTime="2026-10-09">09 October 2026</time>
-              </div>
-              <h3 id="flood-title">Legacy Trust Bank supports flood victims</h3>
-              <p>
-                Relief and recovery support for affected customers and
-                communities in Accra and parts of the Central Region.
-              </p>
-              <div className="document-file">
-                <IconDoc className="icon" />
-                <span>
-                  press release 1.pdf{" "}
-                  <span className="file-size">· 3 pages · 181 KB</span>
-                </span>
-                <span className="original-tag">ORIGINAL PDF</span>
-              </div>
-            </div>
-            <PdfReader
-              docId="press-1"
-              variant="inline"
-              lazy
-              showPreviewLabel
-              prevLabel="Previous page of flood relief press release"
-              nextLabel="Next page of flood relief press release"
-            />
-            <div className="press-card-actions">
-              <button
-                type="button"
-                className="text-button"
-                data-open-doc="press-1"
-                onClick={() => onOpenDoc("press-1")}
-              >
-                <IconExpand className="icon" />
-                Read full screen
-              </button>
-              <button
-                type="button"
-                className="text-button"
-                data-download-doc="press-1"
-                onClick={() => void downloadDocument("press-1")}
-              >
-                <IconDownload className="icon" />
-                Download PDF
-              </button>
-            </div>
-          </article>
+        <div className="mt-10 grid items-start gap-6 lg:grid-cols-2">
+          {pressReleases.map((release) => (
+            <Card
+              key={release.anchor}
+              id={release.anchor}
+              className="scroll-mt-24 overflow-hidden"
+            >
+              <CardBody>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Badge tone="brand">{release.tone}</Badge>
+                  <time
+                    dateTime={release.dateTime}
+                    className="text-xs text-ink-500"
+                  >
+                    {release.dateLabel}
+                  </time>
+                </div>
+                <h3 className="mt-4 text-xl font-semibold text-ink-900">
+                  {release.title}
+                </h3>
+                <p className="mt-2 text-sm text-ink-600">{release.body}</p>
+                <div className="mt-4 flex items-center gap-2 rounded-lg border border-ink-100 bg-ink-50 px-3 py-2 text-xs text-ink-600">
+                  <IconDoc className="h-4 w-4 shrink-0 text-brand-600" />
+                  <span>{release.file}</span>
+                  <span className="text-ink-400">· {release.size}</span>
+                  <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-500 ring-1 ring-ink-200">
+                    Original PDF
+                  </span>
+                </div>
+              </CardBody>
 
-          <article
-            id="press-high-yield"
-            className="press-card"
-            aria-labelledby="savings-title"
-            data-source="press-2"
-          >
-            <div className="press-card-header">
-              <div className="article-meta">
-                <span className="mini-label">PRODUCT ANNOUNCEMENT</span>
-                <time dateTime="2026-09-10">10 September 2026</time>
+              <PdfReader
+                docId={release.id}
+                variant="inline"
+                lazy
+                showPreviewLabel
+                prevLabel={`Previous page of ${release.title}`}
+                nextLabel={`Next page of ${release.title}`}
+              />
+
+              <div className="flex items-center justify-between gap-4 border-t border-ink-100 px-5 py-4 sm:px-6">
+                <button
+                  type="button"
+                  className={buttonClass("outline", "sm")}
+                  onClick={() => onOpenDoc(release.id)}
+                >
+                  <IconExpand className="h-4 w-4" />
+                  Read full screen
+                </button>
+                <button
+                  type="button"
+                  className={buttonClass("ghost", "sm")}
+                  onClick={() => void downloadDocument(release.id)}
+                >
+                  <IconDownload className="h-4 w-4" />
+                  Download PDF
+                </button>
               </div>
-              <h3 id="savings-title">
-                Introducing the High-Yield Savings Account
-              </h3>
-              <p>
-                An announcement of the account’s savings features, access
-                options and mobile account-opening process.
-              </p>
-              <div className="document-file">
-                <IconDoc className="icon" />
-                <span>
-                  press release 2.pdf{" "}
-                  <span className="file-size">· 3 pages · 192 KB</span>
-                </span>
-                <span className="original-tag">ORIGINAL PDF</span>
-              </div>
-            </div>
-            <PdfReader
-              docId="press-2"
-              variant="inline"
-              lazy
-              showPreviewLabel
-              prevLabel="Previous page of savings account press release"
-              nextLabel="Next page of savings account press release"
-            />
-            <div className="press-card-actions">
-              <button
-                type="button"
-                className="text-button"
-                data-open-doc="press-2"
-                onClick={() => onOpenDoc("press-2")}
-              >
-                <IconExpand className="icon" />
-                Read full screen
-              </button>
-              <button
-                type="button"
-                className="text-button"
-                data-download-doc="press-2"
-                onClick={() => void downloadDocument("press-2")}
-              >
-                <IconDownload className="icon" />
-                Download PDF
-              </button>
-            </div>
-          </article>
+            </Card>
+          ))}
         </div>
 
-        <div className="media-contact">
-          <PhotoSlot
-            photo="media-contact"
-            variant="media-photo"
-            ariaLabel="Portrait placeholder: Media Contact"
-            icon="person"
-            compact
-          />
-          <div className="media-person">
-            <span className="mini-label">MEDIA CONTACT</span>
-            <strong data-edit="name">Name to be added</strong>
-            <span className="media-role" data-edit="role">
-              Media relations
-            </span>
-          </div>
-          <p>For press enquiries and interview requests.</p>
-          <a
-            className="text-button"
-            href="mailto:joyceacquah@gmail.com"
-          >
-            Contact the media team
-            <IconArrow className="icon" />
-          </a>
-        </div>
+        <Card className="mt-6">
+          <CardBody className="flex flex-wrap items-center gap-5">
+            <PhotoSlot
+              ariaLabel="Portrait placeholder: Media Contact"
+              icon="person"
+              compact
+              className="h-20 w-20 shrink-0"
+            />
+            <div className="min-w-40">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-600">
+                Media contact
+              </span>
+              <strong className="mt-1 block text-base font-semibold text-ink-900">
+                Name to be added
+              </strong>
+              <span className="text-sm text-ink-500">Media relations</span>
+            </div>
+            <p className="max-w-xs text-sm text-ink-600">
+              For press enquiries and interview requests.
+            </p>
+            <a
+              href="mailto:joyceacquah@gmail.com"
+              className={buttonClass("outline", "sm", "sm:ml-auto")}
+            >
+              Contact the media team
+              <IconDownload className="h-4 w-4 rotate-180" />
+            </a>
+          </CardBody>
+        </Card>
 
-        <p className="press-footnote">
+        <p className="mt-6 max-w-3xl text-sm text-ink-500">
           PDFs are rendered directly from the original uploaded files, not
           recreated as text or screenshots. All source pages are retained,
           including blank pages.
         </p>
-      </div>
+      </Container>
     </section>
   );
 }
