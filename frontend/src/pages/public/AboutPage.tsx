@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { IconArrow } from "./about/icons";
+import { PhotoSlot } from "./about/PhotoSlot";
 
 const facts = [
   { label: "Our heritage", value: "Established in 1923" },
@@ -12,31 +13,36 @@ const facts = [
 
 export function AboutPage() {
   return (
-    <div className="flex min-h-full flex-col">
-      <section className="relative flex min-h-[60vh] flex-1 items-center overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-600 text-white">
-        <div
-          aria-hidden="true"
-          className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-500/30 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-accent-500/20 blur-3xl"
-        />
-        <Container className="relative py-20">
-          <Badge tone="light">About Legacy Trust Bank</Badge>
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            A legacy built on trust. A future, together.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg text-white/80">
-            Rooted in Ghana since 1923, we bring personal relationships and
-            thoughtful innovation together — helping individuals, families and
-            businesses build what comes next.
-          </p>
-          <div className="mt-8">
-            <Link to="/about/our-story" className={buttonClass("white", "lg")}>
-              Discover our story
-              <IconArrow className="h-4 w-4" />
-            </Link>
+    <div className="flex min-h-full flex-col bg-white">
+      <section className="flex min-h-[65vh] flex-1 items-center">
+        <Container className="grid items-center gap-12 py-16 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <Badge tone="brand">About Legacy Trust Bank</Badge>
+            <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight text-ink-900 sm:text-5xl">
+              A legacy built on trust. A future, together.
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-600">
+              Rooted in Ghana since 1923, we bring personal relationships and
+              thoughtful innovation together — helping individuals, families and
+              businesses build what comes next.
+            </p>
+            <div className="mt-8">
+              <Link to="/about/our-story" className={buttonClass("primary", "lg")}>
+                Discover our story
+                <IconArrow className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative">
+            <PhotoSlot
+              ariaLabel="Portrait placeholder: man folding his arms"
+              label="Full portrait photograph"
+              sub="Man folding his arms"
+              note="Image to be added"
+              icon="person"
+              className="h-80 w-full sm:h-96 lg:h-[34rem]"
+            />
           </div>
         </Container>
       </section>
