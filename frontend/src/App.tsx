@@ -11,6 +11,7 @@ import { SupportPage } from "@/pages/public/SupportPage";
 import { SecurityPage } from "@/pages/public/SecurityPage";
 import { RegisterPage } from "@/pages/public/RegisterPage";
 import { AboutPage } from "@/pages/public/AboutPage";
+import { OurStoryPage } from "@/pages/public/about/OurStoryPage";
 import { NotFoundPage } from "@/pages/public/NotFoundPage";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { DashboardHome } from "@/pages/dashboard/DashboardHome";
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/support" element={<SupportPage />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/about/our-story" element={<OurStoryPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
