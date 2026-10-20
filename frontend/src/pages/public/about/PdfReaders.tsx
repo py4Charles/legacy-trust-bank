@@ -12,7 +12,9 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconClose,
+  IconDoc,
   IconDownload,
+  IconExpand,
   IconMinus,
   IconPlus,
 } from "./icons";
@@ -250,6 +252,7 @@ export function PdfReader({
   docId,
   variant,
   lazy = false,
+  manual = false,
   showPreviewLabel = false,
   showZoom = false,
   prevLabel,
@@ -259,6 +262,11 @@ export function PdfReader({
   docId: DocumentId;
   variant: "inline" | "modal";
   lazy?: boolean;
+  /**
+   * When true the PDF is not fetched until the visitor explicitly asks for the
+   * preview. Prevents the browser from requesting any PDF on page load.
+   */
+  manual?: boolean;
   showPreviewLabel?: boolean;
   showZoom?: boolean;
   prevLabel: string;
@@ -268,7 +276,7 @@ export function PdfReader({
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [near, setNear] = useState(!lazy);
+  const [near, setNear] = useState(!lazy && !manual);
   const [state, setState] = useState<ReaderState>({
     status: "loading",
     pageNumber: 1,
@@ -277,7 +285,7 @@ export function PdfReader({
   });
 
   useEffect(() => {
-    if (near) return;
+    if (near || manual) return;
     const host = hostRef.current;
     if (!host) return;
     if (!("IntersectionObserver" in window)) {
@@ -295,7 +303,7 @@ export function PdfReader({
     );
     observer.observe(host);
     return () => observer.disconnect();
-  }, [near]);
+  }, [near, manual]);
 
   const handleState = useCallback((next: ReaderState) => {
     setState((prev) =>
@@ -335,6 +343,34 @@ export function PdfReader({
   const prevDisabled = busy || totalPages === null || state.pageNumber <= 1;
   const nextDisabled =
     busy || totalPages === null || state.pageNumber >= totalPages;
+
+  if (manual && !near) {
+    return (
+      <div
+        ref={hostRef}
+        className={cn(
+          "min-w-0 overflow-hidden border-y border-ink-200 bg-ink-100",
+          className,
+        )}
+        data-viewer-doc={docId}
+      >
+        <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+          <IconDoc className="h-8 w-8 text-ink-300" />
+          <p className="max-w-sm text-sm text-ink-600">
+            The preview loads only when you open it, so this page stays light.
+          </p>
+          <button
+            type="button"
+            className={buttonClass("outline", "sm")}
+            onClick={() => setNear(true)}
+          >
+            <IconExpand className="h-4 w-4" />
+            Preview PDF
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

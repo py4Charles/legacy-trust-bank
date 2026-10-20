@@ -87,7 +87,7 @@ export function PressRoom({
               <PdfReader
                 docId={release.id}
                 variant="inline"
-                lazy
+                manual
                 showPreviewLabel
                 prevLabel={`Previous page of ${release.title}`}
                 nextLabel={`Next page of ${release.title}`}
