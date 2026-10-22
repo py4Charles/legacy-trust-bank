@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Legacy Insights - Quarterly Earnings Report</title>
+<title>Legacy Insights - The Secure Touch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -21,7 +21,6 @@
     --slate: #2b3648;
     --text-muted: #5e6d82;
     --border: #dbe4f0;
-    --green: #107c41;
   }
 
   * { box-sizing: border-box; }
@@ -64,7 +63,7 @@
   .page {
     width: 210mm;
     height: 297mm;
-    margin: 0 auto;
+    margin: 0 auto 30px auto;
     background: #ffffff;
     display: flex;
     flex-direction: column;
@@ -82,8 +81,11 @@
     .page {
       margin: 0;
       box-shadow: none;
-      page-break-after: avoid;
+      page-break-after: always;
       page-break-inside: avoid;
+    }
+    .page:last-child {
+      page-break-after: auto;
     }
   }
 
@@ -132,10 +134,10 @@
     letter-spacing: 0.08em;
   }
 
-  /* Content */
+  /* Main Body */
   .content {
     flex: 1;
-    padding: 22px 38px 16px 38px;
+    padding: 24px 38px 18px 38px;
     display: flex;
     flex-direction: column;
   }
@@ -167,82 +169,21 @@
   h1.headline {
     font-family: 'Cinzel', serif;
     color: var(--navy);
-    font-size: 26px;
+    font-size: 30px;
     font-weight: 700;
     letter-spacing: 0.02em;
-    margin: 4px 0 14px 0;
-    line-height: 1.2;
+    margin: 4px 0 16px 0;
+    line-height: 1.15;
     border-bottom: 1.5px solid var(--border);
-    padding-bottom: 10px;
-  }
-
-  /* KPI Grid */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .kpi-card {
-    background: #f7faff;
-    border: 1px solid var(--border);
-    border-top: 3.5px solid var(--navy);
-    border-radius: 6px;
-    padding: 10px 12px;
-  }
-
-  .kpi-card.highlight {
-    background: linear-gradient(145deg, #f2f7fd, var(--sky));
-    border-top-color: var(--gold);
-  }
-
-  .kpi-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 3px;
-  }
-
-  .kpi-value {
-    font-family: 'Cinzel', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--navy);
-    line-height: 1.1;
-  }
-
-  .kpi-sub {
-    font-size: 9.5px;
-    font-weight: 600;
-    color: var(--green);
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-
-  /* Columns */
-  .columns {
-    display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 22px;
-    flex: 1;
-  }
-
-  .col {
-    display: flex;
-    flex-direction: column;
+    padding-bottom: 12px;
   }
 
   h2.section-heading {
     font-family: 'Cinzel', serif;
     color: var(--navy);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
-    margin: 8px 0 8px 0;
+    margin: 14px 0 8px 0;
     letter-spacing: 0.04em;
     display: flex;
     align-items: center;
@@ -256,134 +197,144 @@
     background: var(--border);
   }
 
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    flex: 1;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+  }
+
   p {
-    font-size: 11px;
-    line-height: 1.55;
-    margin: 0 0 9px 0;
+    font-size: 11.2px;
+    line-height: 1.6;
+    margin: 0 0 10px 0;
     color: var(--slate);
   }
 
   p.lead {
-    font-size: 11.5px;
+    font-size: 11.8px;
     font-weight: 500;
     color: var(--navy-dark);
+  }
+
+  .illustration-card {
+    background: linear-gradient(145deg, #f2f7fd, #e4edf8);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 6px 0 12px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .illustration-card svg {
+    max-height: 80px;
+    width: auto;
   }
 
   .callout-box {
     background: var(--sky);
     border-left: 4px solid var(--navy);
     border-radius: 0 6px 6px 0;
-    padding: 10px 12px;
-    margin: 6px 0 10px 0;
+    padding: 10px 14px;
+    margin: 8px 0 12px 0;
   }
 
   .callout-box p {
     margin: 0;
-    font-size: 10.8px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--navy);
     line-height: 1.45;
   }
 
-  /* Financial Summary Table */
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 4px 0 10px 0;
-    font-size: 10.2px;
+  .pull-quote {
+    background: #ffffff;
+    border-left: 3px solid var(--gold);
+    padding: 8px 12px;
+    margin: 8px 0 10px 0;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--navy-dark);
+    line-height: 1.45;
   }
 
-  .data-table th {
-    background: var(--navy);
-    color: #ffffff;
-    font-weight: 600;
-    text-align: left;
-    padding: 6px 8px;
-    font-size: 9.8px;
-    letter-spacing: 0.03em;
+  /* Step List */
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .data-table th:last-child,
-  .data-table td:last-child {
-    text-align: right;
-  }
-
-  .data-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--border);
-    color: var(--slate);
-  }
-
-  .data-table tr:nth-child(even) td {
-    background: #f8fafc;
-  }
-
-  .data-table tr.total-row td {
-    font-weight: 700;
-    color: var(--navy);
-    border-top: 1.5px solid var(--navy);
-    background: var(--sky);
-  }
-
-  /* Inline Mini Chart */
-  .chart-card {
+  .step-item {
     background: #f7faff;
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 10px;
-    margin-top: auto;
+    padding: 8px 10px 8px 36px;
+    position: relative;
+    font-size: 10.8px;
+    line-height: 1.45;
   }
 
-  .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .step-number {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #ffffff;
     font-size: 10px;
     font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .chart-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .bar-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 9.8px;
+    justify-content: center;
   }
 
-  .bar-label {
-    width: 60px;
-    font-weight: 600;
-    color: var(--slate);
-  }
-
-  .bar-track {
-    flex: 1;
-    height: 12px;
-    background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 3px;
-  }
-
-  .bar-val {
-    width: 70px;
-    text-align: right;
-    font-weight: 700;
+  .step-item strong {
     color: var(--navy);
+    font-weight: 700;
+  }
+
+  /* Support highlight box */
+  .support-box {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: auto;
+    border: 1px solid var(--gold);
+  }
+
+  .support-box h3 {
+    margin: 0 0 4px 0;
+    color: var(--gold);
+    font-size: 12px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  .support-box p {
+    color: #ebf2fc;
+    font-size: 10.5px;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .support-box strong {
+    color: #ffffff;
   }
 
   /* Footer */
@@ -422,7 +373,7 @@
   Save / Print as PDF
 </button>
 
-<!-- ================= 1-PAGE A4 EXECUTIVE BULLETIN ================= -->
+<!-- ================= PAGE 1 ================= -->
 <div class="page">
   <header class="masthead">
     <div>
@@ -430,152 +381,91 @@
       <div class="masthead-title">INSIGHTS</div>
     </div>
     <div class="masthead-meta">
-      <strong>FINANCIAL BULLETIN</strong>
-      Quarterly Release &bull; Q3 2026
+      <strong>MONTHLY BULLETIN</strong>
+      Issue 42 &bull; October 3<sup>rd</sup>, 2026
     </div>
   </header>
 
   <main class="content">
     <div class="kicker-bar">
-      <span class="kicker-tag">Financial Disclosure</span>
-      <span class="kicker-date">Period Ended 30 September 2026</span>
+      <span class="kicker-tag">Digital Innovation</span>
+      <span class="kicker-date">Official Release Announcement</span>
     </div>
 
-    <h1 class="headline">Quarterly Earnings Report</h1>
+    <h1 class="headline">The Secure Touch</h1>
 
-    <!-- KPI Metric Cards Grid -->
-    <div class="kpi-grid">
-      <div class="kpi-card highlight">
-        <div class="kpi-label">Gross Revenue</div>
-        <div class="kpi-value">GH₵186.4M</div>
-        <div class="kpi-sub">&#9650; +16.6% vs Q3 2025</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Profit Before Tax</div>
-        <div class="kpi-value">GH₵42.6M</div>
-        <div class="kpi-sub">&#9650; Strong Margin Growth</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Profit After Tax</div>
-        <div class="kpi-value">GH₵29.8M</div>
-        <div class="kpi-sub">&#9650; Sustained Net Return</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Total Assets</div>
-        <div class="kpi-value">GH₵4.85B</div>
-        <div class="kpi-sub">Solid Balance Sheet</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Customer Deposits</div>
-        <div class="kpi-value">GH₵3.72B</div>
-        <div class="kpi-sub">Deep Institutional Trust</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Loans & Advances</div>
-        <div class="kpi-value">GH₵2.41B</div>
-        <div class="kpi-sub">Active Credit Expansion</div>
-      </div>
-    </div>
-
-    <!-- 2-Column Content Breakdown -->
     <div class="columns">
-      <!-- Col 1: Executive Summary -->
+      <!-- Col 1 -->
       <div class="col">
-        <h2 class="section-heading">Executive Performance Summary</h2>
-
         <p class="lead">
-          Legacy Trust Bank has officially released its financial results for the third quarter ended 30 September 2026, delivering sustained growth across all key profitability and operational indicators.
+          Imagine standing at a busy coffee shop counter on a rainy Monday morning and you pull out your phone to check your account balance before making a quick transfer. However, as you tap the screen, your mind goes blank.
         </p>
 
         <p>
-          The Bank recorded a total revenue of <strong>GH₵186.4 million</strong> during the quarter, reflecting a substantial expansion compared with <strong>GH₵159.8 million</strong> reported for the corresponding period in 2025.
+          Was your password the one with the capital 'L' and the special character, or the one you created last month after resetting it for the third time? After three incorrect attempts, your account is temporarily locked, the line behind you grows restless, and a simple errand turns into a frustrating delay.
+        </p>
+
+        <!-- Illustration 1: Phone & Fingerprint -->
+        <div class="illustration-card">
+          <svg viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="55" y="5" width="70" height="70" rx="14" fill="#ffffff" stroke="#1e3a68" stroke-width="2"/>
+            <rect x="63" y="14" width="54" height="52" rx="6" fill="#ebf2fc"/>
+            <path d="M90 28c-7.73 0-14 6.27-14 14 0 2.2.5 4.3 1.4 6.1" stroke="#1e3a68" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M102.6 48.1c.9-1.8 1.4-3.9 1.4-6.1 0-7.73-6.27-14-14-14" stroke="#1e3a68" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M90 34c-4.42 0-8 3.58-8 8 0 4.42 3.58 8 8 8s8-3.58 8-8" stroke="#f2ba2b" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M90 40c-1.1 0-2 .9-2 2 0 3 2 5 2 5" stroke="#1e3a68" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="90" cy="10" r="1.5" fill="#1e3a68"/>
+          </svg>
+        </div>
+
+        <p>
+          It is a situation almost every mobile banking customer has experienced before. The digital world forced a compromise for a long time: either it's easy and less secure, or secure but more time-consuming.
         </p>
 
         <div class="callout-box">
-          <p>
-            Profit before tax stood firmly at <strong>GH₵42.6 million</strong>, translating to a resilient profit after tax of <strong>GH₵29.8 million</strong> for the reporting period.
-          </p>
+          <p>Today, Legacy Trust Bank is officially getting rid of that compromise.</p>
         </div>
 
-        <h2 class="section-heading">Balance Sheet Strength</h2>
-
         <p>
-          The Bank's total asset base expanded to <strong>GH₵4.85 billion</strong> as at 30 September 2026. High customer confidence supported deposit mobilization of <strong>GH₵3.72 billion</strong>, while prudent lending generated <strong>GH₵2.41 billion</strong> in active loans and advances.
+          Everyone can attest to the fact that security was built on trust in physical keys, heavy iron vaults, and handshakes across a wooden desk.
         </p>
       </div>
 
-      <!-- Col 2: Tables and YoY Graphic -->
+      <!-- Col 2 -->
       <div class="col">
-        <h2 class="section-heading">Financial Position Snapshot</h2>
+        <p>
+          As banking moved into the palms of our hands, physical keys became passwords, complex character requirements, and numbers.
+        </p>
 
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Key Financial Metric</th>
-              <th>Reporting Period</th>
-              <th>Amount (GH₵)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Quarterly Revenue</td>
-              <td>Q3 2026</td>
-              <td><strong>186.4M</strong></td>
-            </tr>
-            <tr>
-              <td>Profit Before Tax (PBT)</td>
-              <td>Q3 2026</td>
-              <td><strong>42.6M</strong></td>
-            </tr>
-            <tr>
-              <td>Profit After Tax (PAT)</td>
-              <td>Q3 2026</td>
-              <td><strong>29.8M</strong></td>
-            </tr>
-            <tr>
-              <td>Customer Deposits</td>
-              <td>As of Sep 30</td>
-              <td><strong>3.72B</strong></td>
-            </tr>
-            <tr>
-              <td>Loans and Advances</td>
-              <td>As of Sep 30</td>
-              <td><strong>2.41B</strong></td>
-            </tr>
-            <tr class="total-row">
-              <td>Total Assets Under Mgmt</td>
-              <td>As of Sep 30</td>
-              <td><strong>4.85B</strong></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Visual Bar Breakdown -->
-        <div class="chart-card">
-          <div class="chart-header">
-            <span>Revenue Growth (YoY Comparison)</span>
-            <span style="color: var(--green);">+16.6%</span>
-          </div>
-          <div class="chart-bars">
-            <div class="bar-row">
-              <span class="bar-label">Q3 2025</span>
-              <div class="bar-track">
-                <div class="bar-fill" style="width: 85%; background: var(--text-muted);"></div>
-              </div>
-              <span class="bar-val">GH₵159.8M</span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Q3 2026</span>
-              <div class="bar-track">
-                <div class="bar-fill" style="width: 100%; background: linear-gradient(90deg, var(--navy), var(--gold));"></div>
-              </div>
-              <span class="bar-val" style="color: var(--navy-dark);">GH₵186.4M</span>
-            </div>
-          </div>
+        <!-- Illustration 2: Biometric Scanner Target -->
+        <div class="illustration-card">
+          <svg viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="90" cy="40" r="32" fill="#ffffff" stroke="#1e3a68" stroke-width="2"/>
+            <circle cx="90" cy="40" r="24" stroke="#f2ba2b" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M80 32v-4h4m12 0h4v4m0 16v4h-4m-12 0h-4v-4" stroke="#1e3a68" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="90" cy="40" r="8" fill="#ebf2fc" stroke="#1e3a68" stroke-width="1.8"/>
+            <path d="M72 40h36" stroke="#f2ba2b" stroke-width="1.5"/>
+          </svg>
         </div>
 
-        <p style="font-size: 10px; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
-          * These figures reflect the Bank's verified revenue, liquidity margins, deposit base, and total asset capitalization under Bank of Ghana regulatory frameworks.
+        <p>
+          The launch of Biometric Login on the Legacy Trust Mobile app marks a return to the olden days: having the key in your palms, literally, and not in your head where it can be forgotten.
+        </p>
+
+        <div class="callout-box">
+          <p>Starting October 15, 2026, account holders can log into their mobile app using only a quick touch of a finger.</p>
+        </div>
+
+        <p>
+          During the design process, we thought not just about how to make the process easy, but also about how to make it feel natural.
+        </p>
+
+        <div class="pull-quote">
+          "Passcodes can be forgotten, but can you forget your fingerprint?"
+        </div>
+
+        <p>
+          Biometric authentication turns your unique physical markers into the most sophisticated key.
         </p>
       </div>
     </div>
@@ -588,7 +478,112 @@
     </div>
     <div class="footer-item">
       <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-      investors@LTBANK.com
+      support@LTBANK.com
+    </div>
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      https://legacytrustbank.netlify.app
+    </div>
+  </footer>
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div class="page">
+  <header class="masthead">
+    <div>
+      <div class="masthead-brand">Legacy</div>
+      <div class="masthead-title">INSIGHTS</div>
+    </div>
+    <div class="masthead-meta">
+      <strong>MONTHLY BULLETIN</strong>
+      Issue 42 &bull; Page 2
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="columns">
+      <!-- Col 1 -->
+      <div class="col">
+        <h2 class="section-heading">Effortless Access</h2>
+
+        <p class="lead">
+          With the debate on how it differs from regular logins, for everyday app users, the uniqueness is effortless access.
+        </p>
+
+        <p>
+          The moments spent typing passwords or waiting for authentication codes and one-time passcodes are replaced by an instant, smooth unlock.
+        </p>
+
+        <p>
+          The process of checking balances, verifying recent purchases, or approving urgent wire transfers now takes less than a second. What was once hectic is now completely seamless.
+        </p>
+
+        <h2 class="section-heading">Uncompromising Protection</h2>
+
+        <p>
+          Behind this seamless process sits an uncompromising layer of protection. Biometric verification dramatically reduces the risk of phishing and unauthorized account access, providing peace of mind every time you open the app.
+        </p>
+
+        <h2 class="section-heading">Your Data Stays Yours</h2>
+
+        <p>
+          Your biological data stays exclusively yours. Legacy Trust Bank never stores fingerprints on central servers.
+        </p>
+
+        <p>
+          Verification happens exclusively on your device's built-in secure hardware enclave, ensuring complete privacy, zero transmission, and total security.
+        </p>
+      </div>
+
+      <!-- Col 2 -->
+      <div class="col">
+        <h2 class="section-heading">Fast Activation</h2>
+
+        <p>
+          Activating biometric authentication requires no complex setup and takes less than a minute:
+        </p>
+
+        <ol class="step-list">
+          <li class="step-item">
+            <span class="step-number">1</span>
+            <strong>Update:</strong> Download the latest version of Legacy Trust Mobile from the App Store or Google Play Store.
+          </li>
+          <li class="step-item">
+            <span class="step-number">2</span>
+            <strong>Log In:</strong> Open the app and log in using your current username and password.
+          </li>
+          <li class="step-item">
+            <span class="step-number">3</span>
+            <strong>Enable:</strong> Navigate to <em>Settings &gt; Security Options</em>, toggle on <em>Enable Biometric Login</em>, and follow the brief prompt to complete authorization.
+          </li>
+        </ol>
+
+        <p>
+          For customers who prefer traditional login methods, password and PIN access will remain fully available alongside the new biometric feature.
+        </p>
+
+        <p>
+          As digital threats evolve, Legacy Trust Bank remains committed to building tools that keep your wealth secure without getting in the way of your life.
+        </p>
+
+        <div class="support-box">
+          <h3>Need Help Setting Up?</h3>
+          <p>
+            Our dedicated support team is available 24/7 at <strong>support@LTBANK.com</strong> or through our customer direct line at <strong>0302-211-211</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      0302-211-211
+    </div>
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      support@LTBANK.com
     </div>
     <div class="footer-item">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
