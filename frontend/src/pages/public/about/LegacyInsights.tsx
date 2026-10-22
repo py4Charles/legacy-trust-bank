@@ -279,7 +279,7 @@ export function LegacyInsights({
             </dl>
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-5">
               <span className="text-[10px] uppercase tracking-wide text-white/50">
-                Source: NEWSLWEETER 3.pdf
+                Source: newsletter 3.pdf
               </span>
               <button
                 type="button"

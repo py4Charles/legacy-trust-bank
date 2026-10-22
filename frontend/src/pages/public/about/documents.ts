@@ -3,7 +3,7 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 import type { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import newsletterOneUrl from "@/docs/newsletter 1.pdf?url";
 import newsletterTwoUrl from "@/docs/newsletter 2.pdf?url";
-import newsletterThreeUrl from "@/docs/NEWSLWEETER 3.pdf?url";
+import newsletterThreeUrl from "@/docs/newsletter 3.pdf?url";
 import pressReleaseOneUrl from "@/docs/press release 1.pdf?url";
 import pressReleaseTwoUrl from "@/docs/press release 2.pdf?url";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -47,7 +47,7 @@ export const documentList: SourceDocument[] = [
   {
     id: "newsletter-3",
     title: "Quarterly Earnings · Q3 2026",
-    filename: "NEWSLWEETER 3.pdf",
+    filename: "newsletter 3.pdf",
     url: newsletterThreeUrl,
     pages: 2,
   },
