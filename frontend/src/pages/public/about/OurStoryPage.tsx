@@ -187,11 +187,13 @@ export function OurStoryPage() {
             ))}
           </div>
 
-          <p className="mt-6 flex items-center gap-2 text-sm text-ink-500">
-            <span className="h-1.5 w-1.5 rounded-full bg-ink-300" />
-            Profile placeholders — portraits, names and biographies can be
-            filled in later.
-          </p>
+          {false && (
+            <p className="mt-6 flex items-center gap-2 text-sm text-ink-500">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-300" />
+              Profile placeholders — portraits, names and biographies can be
+              filled in later.
+            </p>
+          )}
         </Container>
       </section>
 
