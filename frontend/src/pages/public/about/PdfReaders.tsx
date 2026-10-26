@@ -12,12 +12,12 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconClose,
-  IconDoc,
   IconDownload,
   IconExpand,
   IconMinus,
   IconPlus,
 } from "./icons";
+import { PdfThumbnail } from "./PdfThumbnail";
 
 type PdfStatus = "loading" | "ready" | "error";
 
@@ -354,19 +354,22 @@ export function PdfReader({
         )}
         data-viewer-doc={docId}
       >
-        <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-          <IconDoc className="h-8 w-8 text-ink-300" />
-          <p className="max-w-sm text-sm text-ink-600">
-            The preview loads only when you open it, so this page stays light.
-          </p>
-          <button
-            type="button"
-            className={buttonClass("outline", "sm")}
-            onClick={() => setNear(true)}
-          >
-            <IconExpand className="h-4 w-4" />
-            Preview PDF
-          </button>
+        <button
+          type="button"
+          onClick={() => setNear(true)}
+          className="group relative block w-full text-left"
+          aria-label={`Preview ${getDocumentSource(docId).title} PDF`}
+        >
+          <PdfThumbnail docId={docId} className="h-80 w-full" />
+          <span className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-ink-950/50 via-transparent to-transparent p-5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink-900 shadow-sm transition-colors group-hover:bg-brand-50">
+              <IconExpand className="h-4 w-4" />
+              Preview PDF
+            </span>
+          </span>
+        </button>
+        <div className="border-t border-ink-200 bg-white px-4 py-3 text-center text-xs text-ink-500">
+          Page 1 preview · the full viewer loads only when you open it.
         </div>
       </div>
     );

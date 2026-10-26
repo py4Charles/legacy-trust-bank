@@ -3,8 +3,8 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { downloadDocument, type DocumentId } from "./documents";
-import { IconArrow, IconDiagonal, IconDownload } from "./icons";
-import { PhotoSlot } from "./PhotoSlot";
+import { IconArrow, IconDiagonal, IconDoc, IconDownload } from "./icons";
+import { PdfThumbnail } from "./PdfThumbnail";
 
 const jumps = [
   { href: "#secure-touch", index: "01", label: "The Secure Touch" },
@@ -65,14 +65,21 @@ export function LegacyInsights({
           <article id="secure-touch" className="scroll-mt-24">
             <Card className="overflow-hidden">
               <div className="grid items-stretch overflow-hidden lg:grid-cols-2">
-                <PhotoSlot
-                  ariaLabel="Photo placeholder: customer using biometric mobile banking"
-                  label="Mobile banking photograph"
-                  sub="Biometric login / customer experience"
-                  note="Image to be added"
-                  index="01"
-                  className="min-h-64 rounded-none border-0"
-                />
+                <button
+                  type="button"
+                  onClick={() => onOpenDoc("newsletter-1")}
+                  className="group relative min-h-64 overflow-hidden bg-ink-100 text-left"
+                  aria-label="Preview the original newsletter 1 PDF"
+                >
+                  <PdfThumbnail
+                    docId="newsletter-1"
+                    className="h-full min-h-64 w-full"
+                  />
+                  <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-ink-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur transition-colors group-hover:bg-brand-700/90">
+                    <IconDoc className="h-4 w-4" />
+                    PDF preview
+                  </span>
+                </button>
                 <CardBody className="flex flex-col justify-center border-t border-dashed border-ink-200 lg:border-l lg:border-t-0">
                   <div className="flex items-center justify-between gap-4">
                     <Badge tone="brand">Newsletter 01</Badge>
@@ -220,14 +227,21 @@ export function LegacyInsights({
                     Source: newsletter 2.pdf
                   </span>
                 </CardBody>
-                <PhotoSlot
-                  ariaLabel="Photo placeholder: Legacy Trust Bank and fintech partners collaborating"
-                  label="Partnership photograph"
-                  sub="Team collaboration / fintech innovation"
-                  note="Image to be added"
-                  index="02"
-                  className="order-1 min-h-64 rounded-none border-0 lg:order-2"
-                />
+                <button
+                  type="button"
+                  onClick={() => onOpenDoc("newsletter-2")}
+                  className="group relative order-1 min-h-64 overflow-hidden bg-ink-100 text-left lg:order-2"
+                  aria-label="Preview the original newsletter 2 PDF"
+                >
+                  <PdfThumbnail
+                    docId="newsletter-2"
+                    className="h-full min-h-64 w-full"
+                  />
+                  <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-ink-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur transition-colors group-hover:bg-brand-700/90">
+                    <IconDoc className="h-4 w-4" />
+                    PDF preview
+                  </span>
+                </button>
               </div>
             </Card>
           </article>
@@ -277,6 +291,20 @@ export function LegacyInsights({
                 </div>
               ))}
             </dl>
+            <button
+              type="button"
+              onClick={() => onOpenDoc("newsletter-3")}
+              className="group relative mt-6 block w-full overflow-hidden rounded-xl border border-white/15 bg-white text-left"
+              aria-label="Preview the original newsletter 3 PDF"
+            >
+              <PdfThumbnail docId="newsletter-3" className="h-64 w-full" />
+              <span className="pointer-events-none absolute inset-0 flex items-end justify-end bg-gradient-to-t from-ink-950/50 via-transparent to-transparent p-4">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-900 shadow-sm transition-colors group-hover:bg-brand-50">
+                  <IconDoc className="h-4 w-4" />
+                  Page 1 preview
+                </span>
+              </span>
+            </button>
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-5">
               <span className="text-[10px] uppercase tracking-wide text-white/50">
                 Source: newsletter 3.pdf

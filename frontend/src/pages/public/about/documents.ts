@@ -6,6 +6,11 @@ import newsletterTwoUrl from "@/docs/newsletter 2.pdf?url";
 import newsletterThreeUrl from "@/docs/newsletter 3.pdf?url";
 import pressReleaseOneUrl from "@/docs/press release 1.pdf?url";
 import pressReleaseTwoUrl from "@/docs/press release 2.pdf?url";
+import newsletterOnePreview from "@/docs/ss-pdf/newsletter-1.png";
+import newsletterTwoPreview from "@/docs/ss-pdf/newsletter-2.png";
+import newsletterThreePreview from "@/docs/ss-pdf/newsletter-3.png";
+import pressReleaseOnePreview from "@/docs/ss-pdf/press-release-1.png";
+import pressReleaseTwoPreview from "@/docs/ss-pdf/press-release-2.png";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 // Run the PDF.js worker locally so the page renders the original documents
@@ -24,6 +29,8 @@ export interface SourceDocument {
   title: string;
   filename: string;
   url: string;
+  /** Static screenshot of the document's first page, used for card previews. */
+  previewUrl: string;
   pages: number;
   /** Reference file metadata shown on press cards, e.g. "3 pages · 181 KB". */
   sizeLabel?: string;
@@ -35,6 +42,7 @@ export const documentList: SourceDocument[] = [
     title: "The Secure Touch",
     filename: "newsletter 1.pdf",
     url: newsletterOneUrl,
+    previewUrl: newsletterOnePreview,
     pages: 3,
   },
   {
@@ -42,6 +50,7 @@ export const documentList: SourceDocument[] = [
     title: "Bridging Tradition and Innovation",
     filename: "newsletter 2.pdf",
     url: newsletterTwoUrl,
+    previewUrl: newsletterTwoPreview,
     pages: 2,
   },
   {
@@ -49,6 +58,7 @@ export const documentList: SourceDocument[] = [
     title: "Quarterly Earnings · Q3 2026",
     filename: "newsletter 3.pdf",
     url: newsletterThreeUrl,
+    previewUrl: newsletterThreePreview,
     pages: 2,
   },
   {
@@ -56,6 +66,7 @@ export const documentList: SourceDocument[] = [
     title: "Legacy Trust Bank Supports Flood Victims",
     filename: "press release 1.pdf",
     url: pressReleaseOneUrl,
+    previewUrl: pressReleaseOnePreview,
     pages: 3,
     sizeLabel: "3 pages · 181 KB",
   },
@@ -64,6 +75,7 @@ export const documentList: SourceDocument[] = [
     title: "Legacy Trust Bank Launches High-Yield Savings Account with New Features",
     filename: "press release 2.pdf",
     url: pressReleaseTwoUrl,
+    previewUrl: pressReleaseTwoPreview,
     pages: 3,
     sizeLabel: "3 pages · 192 KB",
   },
