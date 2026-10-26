@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonClass } from "@/components/ui/buttonStyles";
 import { IconArrow } from "./about/icons";
 import { PhotoSlot } from "./about/PhotoSlot";
+import founderPortrait from "@/assets/pics/founder.jpg";
 
 const facts = [
   { label: "Our heritage", value: "Established in 1923" },
@@ -36,10 +37,8 @@ export function AboutPage() {
 
           <div className="relative">
             <PhotoSlot
-              ariaLabel="Portrait placeholder: man folding his arms"
-              label="Full portrait photograph"
-              sub="Man folding his arms"
-              note="Image to be added"
+              ariaLabel="Portrait of Mr. Collins Asare, Founder"
+              src={founderPortrait}
               icon="person"
               className="h-80 w-full sm:h-96 lg:h-[34rem]"
             />

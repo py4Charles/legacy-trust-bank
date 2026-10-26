@@ -18,6 +18,10 @@ import { LegacyInsights } from "./LegacyInsights";
 import { PhotoSlot } from "./PhotoSlot";
 import { ExpandedPdfReader } from "./PdfReaders";
 import { PressRoom } from "./PressRoom";
+import founderPortrait from "@/assets/pics/founder.jpg";
+import coFounderPortrait from "@/assets/pics/co-founder.jpg";
+import coFounderTwoPortrait from "@/assets/pics/co-founder-2.jpg";
+import managingDirectorPortrait from "@/assets/pics/managing-director.jpg";
 
 const values = [
   {
@@ -41,10 +45,34 @@ const values = [
 ];
 
 const people = [
-  { role: "Founder", aria: "Portrait placeholder: Founder" },
-  { role: "Co-founder", aria: "Portrait placeholder: First co-founder" },
-  { role: "Co-founder", aria: "Portrait placeholder: Second co-founder" },
-  { role: "Managing Director", aria: "Portrait placeholder: Managing Director" },
+  {
+    role: "Founder",
+    name: "Mr. Collins Asare",
+    bio: "Founded Legacy Trust Bank in Lapaz in 1923.",
+    aria: "Portrait of Mr. Collins Asare, Founder",
+    src: founderPortrait,
+  },
+  {
+    role: "Co-founder",
+    name: "Mr. Kenneth Antwi",
+    bio: "Helped shape the bank's earliest chapter.",
+    aria: "Portrait of Mr. Kenneth Antwi, Co-founder",
+    src: coFounderPortrait,
+  },
+  {
+    role: "Co-founder",
+    name: "Dr. Kojo Asare",
+    bio: "Helped shape the bank's earliest chapter.",
+    aria: "Portrait of Dr. Kojo Asare, Co-founder",
+    src: coFounderTwoPortrait,
+  },
+  {
+    role: "Managing Director",
+    name: "Name to be added",
+    bio: "Leading the bank's next chapter.",
+    aria: "Portrait of the Managing Director",
+    src: managingDirectorPortrait,
+  },
 ];
 
 export function OurStoryPage() {
@@ -168,7 +196,7 @@ export function OurStoryPage() {
                 <CardBody>
                   <PhotoSlot
                     ariaLabel={person.aria}
-                    note="Portrait to be added"
+                    src={person.src}
                     icon="person"
                     compact
                     className="h-56 w-full"
@@ -177,11 +205,9 @@ export function OurStoryPage() {
                     {person.role}
                   </p>
                   <h3 className="mt-1 text-lg font-semibold text-ink-900">
-                    Name to be added
+                    {person.name}
                   </h3>
-                  <p className="mt-1 text-sm text-ink-600">
-                    Short biography to be added.
-                  </p>
+                  <p className="mt-1 text-sm text-ink-600">{person.bio}</p>
                 </CardBody>
               </Card>
             ))}

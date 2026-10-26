@@ -6,6 +6,8 @@ interface PhotoSlotProps {
   label?: string;
   sub?: string;
   note?: string;
+  /** Actual photograph; when provided it replaces the placeholder artwork. */
+  src?: string;
   /** Large faint editorial index shown near the lower-left corner. */
   index?: string;
   icon?: "image" | "person";
@@ -19,6 +21,7 @@ export function PhotoSlot({
   label,
   sub,
   note,
+  src,
   index,
   icon = "image",
   className,
@@ -28,14 +31,21 @@ export function PhotoSlot({
 
   return (
     <div
-      role="img"
-      aria-label={ariaLabel}
+      role={src ? undefined : "img"}
+      aria-label={src ? undefined : ariaLabel}
       className={cn(
         "relative flex items-center justify-center overflow-hidden rounded-2xl border border-dashed border-ink-200 bg-ink-100 text-ink-400",
+        src && "border-solid",
         className,
       )}
     >
-      {compact ? (
+      {src ? (
+        <img
+          src={src}
+          alt={ariaLabel}
+          className="h-full w-full object-cover object-top"
+        />
+      ) : compact ? (
         <PlaceholderIcon className="h-10 w-10 opacity-60" />
       ) : (
         <div className="flex flex-col items-center px-6 py-8 text-center">
@@ -53,7 +63,7 @@ export function PhotoSlot({
           {index}
         </span>
       )}
-      {note && (
+      {note && !src && (
         <span className="absolute bottom-3 right-4 text-[10px] font-medium uppercase tracking-wide text-ink-400">
           {note}
         </span>

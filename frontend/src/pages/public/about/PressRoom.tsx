@@ -6,6 +6,7 @@ import { downloadDocument, type DocumentId } from "./documents";
 import { IconArrow, IconDoc, IconDownload, IconExpand } from "./icons";
 import { PhotoSlot } from "./PhotoSlot";
 import { PdfReader } from "./PdfReaders";
+import mediaContactPortrait from "@/assets/pics/media-contact.jpg";
 
 const pressReleases = [
   {
@@ -118,7 +119,8 @@ export function PressRoom({
         <Card className="mt-6">
           <CardBody className="flex flex-wrap items-center gap-5">
             <PhotoSlot
-              ariaLabel="Portrait placeholder: Media Contact"
+              ariaLabel="Portrait of the media contact"
+              src={mediaContactPortrait}
               icon="person"
               compact
               className="h-20 w-20 shrink-0"
