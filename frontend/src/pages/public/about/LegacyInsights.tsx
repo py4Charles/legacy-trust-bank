@@ -321,11 +321,11 @@ export function LegacyInsights({
           </article>
         </div>
 
-        <aside className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
+        {/* <aside className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
           <strong>Publication date to confirm.</strong> Newsletter 3’s header
           says “10 August 2025”, but its body reports Q3 2026 results. This draft
           uses the reporting period and preserves the original PDF unchanged.
-        </aside>
+        </aside> */}
       </Container>
     </section>
   );

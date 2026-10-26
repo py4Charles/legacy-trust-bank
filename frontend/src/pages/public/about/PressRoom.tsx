@@ -130,7 +130,7 @@ export function PressRoom({
                 Media contact
               </span>
               <strong className="mt-1 block text-base font-semibold text-ink-900">
-                Name to be added
+                Rahida Nortey
               </strong>
               <span className="text-sm text-ink-500">Media relations</span>
             </div>
@@ -147,11 +147,11 @@ export function PressRoom({
           </CardBody>
         </Card>
 
-        <p className="mt-6 max-w-3xl text-sm text-ink-500">
+        {/* <p className="mt-6 max-w-3xl text-sm text-ink-500">
           PDFs are rendered directly from the original uploaded files, not
           recreated as text or screenshots. All source pages are retained,
           including blank pages.
-        </p>
+        </p> */}
       </Container>
     </section>
   );

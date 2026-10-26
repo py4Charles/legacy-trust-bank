@@ -47,28 +47,28 @@ const values = [
 const people = [
   {
     role: "Founder",
-    name: "Mr. Collins Asare",
-    bio: "Founded Legacy Trust Bank in Lapaz in 1923.",
+    name: "Richmond Nii Adom",
+    bio: "Founded Legacy Trust Bank in Lapaz.",
     aria: "Portrait of Mr. Collins Asare, Founder",
     src: founderPortrait,
   },
   {
     role: "Co-founder",
-    name: "Mr. Kenneth Antwi",
+    name: "Gifty Olekie Ankrah",
     bio: "Helped shape the bank's earliest chapter.",
     aria: "Portrait of Mr. Kenneth Antwi, Co-founder",
     src: coFounderPortrait,
   },
   {
     role: "Co-founder",
-    name: "Dr. Kojo Asare",
+    name: "Nana Owusuwaa Agyemang",
     bio: "Helped shape the bank's earliest chapter.",
     aria: "Portrait of Dr. Kojo Asare, Co-founder",
     src: coFounderTwoPortrait,
   },
   {
     role: "Managing Director",
-    name: "Name to be added",
+    name: "Lawrencia Kwarteng",
     bio: "Leading the bank's next chapter.",
     aria: "Portrait of the Managing Director",
     src: managingDirectorPortrait,
